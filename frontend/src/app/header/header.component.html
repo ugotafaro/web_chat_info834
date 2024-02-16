@@ -1,0 +1,30 @@
+<header class="antialiased">
+  <nav class="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
+      <div class="flex flex-wrap justify-between items-center">
+          <div class="flex justify-start items-center">
+            <a href="" class="flex mr-4">
+              <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Todo</span>
+            </a>
+          </div>
+
+          <a (click)="logout()" *ngIf="isAuth" class="flex items-center lg:order-2">
+            <button type="button"  class="flex items-center text-white bg-purple-700 hover:bg-purple-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" >
+              <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
+                <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
+              </svg>
+              <span class="ml-2">Se déconnecter</span>
+            </button>
+          </a>
+
+
+          <a href="/login" *ngIf="!isAuth" class="flex items-center lg:order-2">
+            <button type="button" class="text-white items-center bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" >
+              <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M7 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm2 1H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+              </svg>
+              Se connecter
+            </button>
+          </a>
+      </div>
+  </nav>
+</header>

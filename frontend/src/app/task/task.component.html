@@ -1,0 +1,11 @@
+
+<div *ngIf="task != null"  class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+  <div class="flex items-center mb-4">
+    <input id="disabled-checkbox" type="checkbox" value="{{ task.done }}" class="w-8 h-8 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+
+  </div>
+  <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ task.title }}</h5>
+  <p class="font-normal text-gray-700 dark:text-gray-400">{{ task.content }}</p>
+</div>
+
+<p *ngIf="task == null">Tâche inexistante</p>
