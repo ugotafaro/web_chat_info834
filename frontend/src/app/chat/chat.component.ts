@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Message } from '../../message';
-import {FormControl, FormGroup } from '@angular/forms';
+import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormControl,FormGroup],
+  imports: [CommonModule,ReactiveFormsModule],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss'
 })
@@ -33,7 +33,7 @@ export class ChatComponent {
 
   onSubmit() {
     const message = this.messageForm.get('message')!.value || null;
-
+    console.log(message);
     this.addMessage(message!);
     this.messageForm.reset();
   }
