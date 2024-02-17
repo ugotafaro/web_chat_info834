@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Message } from '../../message';
 import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule],
+  imports: [CommonModule,ReactiveFormsModule, PickerModule],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss'
 })
@@ -16,6 +17,8 @@ export class ChatComponent {
   messageForm = new FormGroup({
     message : new FormControl('')
   });
+  showEmojiPicker = false;
+  set = 'apple';
   constructor() { }
 
   ngOnInit() {
@@ -30,6 +33,27 @@ export class ChatComponent {
   addMessage(message: string) {
     this.listMessages.push(new Message(this.listMessages.length + 1, message, new Date().getHours(), true, 1));
   }
+
+  toggleEmojiPicker() {
+    this.showEmojiPicker = !this.showEmojiPicker;
+  }
+
+  addEmoji(event : any) {
+    
+    const  message  = this.messageForm.get('message')!.value;
+    const text = `${message}${event.emoji.native}`;
+    this.messageForm.get('message')!.setValue(text);
+    // this.showEmojiPicker = false;
+  }
+
+  onFocus() {
+    console.log('focus');
+    this.showEmojiPicker = false;
+  }
+  onBlur() {
+    console.log('onblur');
+  }
+
 
   onSubmit() {
     const message = this.messageForm.get('message')!.value || null;
