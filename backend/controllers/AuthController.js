@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { client } = require('../redis.js');
 
 const User = require('../models/UserModel.js');
 const { handleErrors } = require('../util.js');
@@ -7,12 +8,31 @@ const { handleErrors } = require('../util.js');
 const signup = async (req, res) => {
     const { username, password } = req.body;
 
+    // Prepare a JSON object to store in Redis if the signup fails
+    const jsonIfError = {timestamp: req.timestamp, succes: false};
+
     // Check if credentials are given
-    if (!username || !password) return handleErrors(res, 401, 'Username and password are required');
+    if (!username || !password) {
+        // Store fail attempt in Redis
+        client.hSet(`signups`, jsonIfError, (err) => {
+            if (err) handleErrors(res, 500, 'Internal Server Error');
+            else console.log('Signup failure saved (missing credentials)');
+        });
+        // Return error
+        return handleErrors(res, 401, 'Username and password are required');
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ username });
-    if (existingUser) return handleErrors(res, 409, 'User already exists');
+    if (existingUser) {
+        // Store fail attempt in Redis
+        client.hSet(`signups`, jsonIfError, (err) => {
+            if (err) handleErrors(res, 500, 'Internal Server Error');
+            else console.log('Signup failure saved (user already exists)');
+        });
+        // Return error
+        return handleErrors(res, 409, 'User already exists');
+    }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,6 +46,16 @@ const signup = async (req, res) => {
     newUser.token = token;
     await newUser.save();
 
+    // Prepare a JSON object to store in Redis
+    const userJson = {username, token, timestamp: req.timestamp};
+
+    // Save user data in Redis
+    client.hSet(`user:${newUser._id}`, userJson, (err) => {
+        if (err) handleErrors(res, 500, 'Internal Server Error');
+        else console.log('User data saved in Redis');
+    });
+
+
     res.json({ message: 'Signup successful', token, user: newUser._id });
 };
 
@@ -34,7 +64,7 @@ const login = async (req, res) => {
     // Check if credentials are given
     if (!username || !password) return handleErrors(res, 401, 'Username and password are required');
 
-    // Check if user exists
+    // Check if user exists in MongoDB
     const user = await User.findOne({ username });
     if (!user) return handleErrors(res, 401, 'Invalid credentials');
 
@@ -44,27 +74,28 @@ const login = async (req, res) => {
 
     // Succes ! Generate and save a token
     const token = jwt.sign({ userId: user._id }, 'secret-key', { expiresIn: '1h' });
-    user.token = token;
-    await user.save();
+
+    // Prepare a JSON object to store in Redis
+    const userJson = {username, token, timestamp:  new Date().toISOString()};
+
+    // Save user data in Redis
+    client.hSet(`user:${user._id}`, userJson, (err) => {
+        if (err) handleErrors(res, 500, 'Internal Server Error');
+    });
 
     res.json({ message: 'Login successful', token, user: user._id });
 };
 
 const logout = async (req, res) => {
-    try {
-        // Get the user ID from the authenticated request
-        const userId = req.user;
+    console.log(req.user);
 
-        // Update the user's MongoDB entry to remove the token
-        const updatedUser = await User.findByIdAndUpdate(userId, { $unset: { token : 1 } }, { new: true });
-        if (!updatedUser) return handleErrors(res, 404, 'User not found');
+    // Remove the user in Redis
+    client.del(`user:${req.user.id}`, (err) => {
+        if (err) handleErrors(res, 500, 'Internal Server Error');
+    });
 
-        // Respond with a successful logout message
-        res.json({ message: 'Logout successful' });
-    } catch (error) {
-        console.error(error);
-        return handleErrors(res, 500, 'Internal Server Error');
-    }
+    // Respond with a successful logout message
+    res.json({ message: 'Logout successful' });
 };
 
 module.exports = {

@@ -1,27 +1,37 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/UserModel');
+const { client } = require('../redis.js');
 const { handleErrors } = require('../util');
 
-const authenticate = async (req, res, next) => {
-  const token = req.header('Authorization');
+const authenticated = async (req, res, next) => {
+    const token = req.header('Authorization');
 
-  // Check if token is given
-  if (!token) return handleErrors(res, 401, 'Unauthorized');
+    const timestamp = new Date().toISOString();
 
-  try {
-    // Verify the token
-    const decoded = jwt.verify(token, 'secret-key');
+    // Check if token is given
+    if (!token) return handleErrors(res, 401, 'Unauthorized');
 
-    // Check if user exists
-    const user = await User.findById(decoded.userId);
+    // Verify token
+    let decoded;
+    try {
+        decoded = jwt.verify(token, 'secret-key');
+    } catch (error) {
+        return handleErrors(res, 401, 'Invalid token');
+    }
 
-    if (!user) return handleErrors(res, 401, 'Invalid token');
+    // Verify if user exists in Redis
+    const foo = await client.exists(`user:${decoded.userId}`, (err, res) => {
+        if (err) return handleErrors(res);
+    });
+    if (foo === 0) return handleErrors(res, 404, 'User not found');
 
-    req.user = user;
+    // Get user data from Redis
+    req.user = await client.hGetAll(`user:${decoded.userId}`, (err, res) => {
+        if (err) return handleErrors(res);
+    });
+
+    req.user.id = decoded.userId;
+    req.timestamp = timestamp;
     next();
-  } catch (error) {
-    return handleErrors(res, 401, 'Invalid token');
-  }
 };
 
-module.exports = authenticate;
+module.exports = authenticated;
