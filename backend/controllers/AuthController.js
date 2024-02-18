@@ -8,31 +8,12 @@ const { handleErrors } = require('../util.js');
 const signup = async (req, res) => {
     const { username, password } = req.body;
 
-    // Prepare a JSON object to store in Redis if the signup fails
-    const jsonIfError = {timestamp: req.timestamp, succes: false};
-
     // Check if credentials are given
-    if (!username || !password) {
-        // Store fail attempt in Redis
-        client.hSet(`signups`, jsonIfError, (err) => {
-            if (err) handleErrors(res, 500, 'Internal Server Error');
-            else console.log('Signup failure saved (missing credentials)');
-        });
-        // Return error
-        return handleErrors(res, 401, 'Username and password are required');
-    }
+    if (!username || !password) return handleErrors(res, 401, 'Username and password are required');
 
     // Check if user already exists
     const existingUser = await User.findOne({ username });
-    if (existingUser) {
-        // Store fail attempt in Redis
-        client.hSet(`signups`, jsonIfError, (err) => {
-            if (err) handleErrors(res, 500, 'Internal Server Error');
-            else console.log('Signup failure saved (user already exists)');
-        });
-        // Return error
-        return handleErrors(res, 409, 'User already exists');
-    }
+    if (existingUser) return handleErrors(res, 409, 'User already exists');
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -61,16 +42,31 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
     const { username, password } = req.body;
+
     // Check if credentials are given
     if (!username || !password) return handleErrors(res, 401, 'Username and password are required');
 
     // Check if user exists in MongoDB
     const user = await User.findOne({ username });
-    if (!user) return handleErrors(res, 401, 'Invalid credentials');
+
+    const jsonIfError = {timestamp: new Date().toISOString(), succes: false};
+    if (!user) {
+        client.hSet(`login`, jsonIfError, (err) => {
+            if (err) handleErrors(res, 500, 'Internal Server Error');
+            else console.log('Login failure saved (invalid credentials)');
+        });
+        return handleErrors(res, 401, 'Invalid credentials');
+    }
 
     // Check password
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return handleErrors(res, 401, 'Invalid credentials');
+    if (!validPassword) {
+        client.hSet(`login`, jsonIfError, (err) => {
+            if (err) handleErrors(res, 500, 'Internal Server Error');
+            else console.log('Login failure saved (password mismatch)');
+        });
+        return handleErrors(res, 401, 'Invalid credentials');
+    }
 
     // Succes ! Generate and save a token
     const token = jwt.sign({ userId: user._id }, 'secret-key', { expiresIn: '1h' });
@@ -87,8 +83,6 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-    console.log(req.user);
-
     // Remove the user in Redis
     client.del(`user:${req.user.id}`, (err) => {
         if (err) handleErrors(res, 500, 'Internal Server Error');
