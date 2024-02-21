@@ -1,8 +1,14 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const db = require('./db.js');
+const express =     require('express');
+const cors =        require('cors');
+const http =        require('http');
+const bodyParser =  require('body-parser');
+const db =          require('./db.js');
+const ChatWS = require('./websocket.js');
+
+// App
 const app = express();
+const server = http.createServer(app);
+const wss = new ChatWS(server);
 
 // Middlewares
 app.use(cors());
