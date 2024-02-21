@@ -30,10 +30,7 @@ export class AuthService {
   attemptLogout(): Observable<any>  {
     const token = localStorage.getItem('token');
 
-    console.log(token);
-
     if (!token) return new Observable();
-
 
     const headers = new HttpHeaders({
         'Content-Type': 'application/json',
