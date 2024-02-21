@@ -13,7 +13,12 @@ const signup = async (req, res) => {
 
     // Check if user already exists
     const existingUser = await User.findOne({ username });
-    if (existingUser) return handleErrors(res, 409, 'User already exists');
+    const timestamp = new Date().toISOString();
+    const jsonIfError = {timestamp, success: false};
+    if (existingUser) {
+        client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'User already exists'}));
+        return handleErrors(res, 409, 'User already exists');
+    }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -27,14 +32,9 @@ const signup = async (req, res) => {
     newUser.token = token;
     await newUser.save();
 
-    // Prepare a JSON object to store in Redis
-    const userJson = {username, token, timestamp: req.timestamp};
-
-    // Save user data in Redis
-    client.hSet(`user:${newUser._id}`, userJson, (err) => {
-        if (err) handleErrors(res, 500, 'Internal Server Error');
-        else console.log('User data saved in Redis');
-    });
+    // Save user and login success in Redis
+    client.hSet(`user:${newUser._id}`, {username, token, timestamp});
+    client.lPush(`login-attempts:${username}`, JSON.stringify({timestamp, success: true}));
 
 
     res.json({ message: 'Signup successful', token, user: newUser._id });
@@ -48,23 +48,18 @@ const login = async (req, res) => {
 
     // Check if user exists in MongoDB
     const user = await User.findOne({ username });
+    const timestamp = new Date().toISOString();
+    const jsonIfError = {timestamp, success: false};
 
-    const jsonIfError = {timestamp: new Date().toISOString(), succes: false};
     if (!user) {
-        client.hSet(`login`, jsonIfError, (err) => {
-            if (err) handleErrors(res, 500, 'Internal Server Error');
-            else console.log('Login failure saved (invalid credentials)');
-        });
+        client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'User not found'}));
         return handleErrors(res, 401, 'Invalid credentials');
-    }
+    };
 
     // Check password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-        client.hSet(`login`, jsonIfError, (err) => {
-            if (err) handleErrors(res, 500, 'Internal Server Error');
-            else console.log('Login failure saved (password mismatch)');
-        });
+        client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'Invalid password'}));
         return handleErrors(res, 401, 'Invalid credentials');
     }
 
@@ -74,19 +69,17 @@ const login = async (req, res) => {
     // Prepare a JSON object to store in Redis
     const userJson = {username, token, timestamp:  new Date().toISOString()};
 
-    // Save user data in Redis
-    client.hSet(`user:${user._id}`, userJson, (err) => {
-        if (err) handleErrors(res, 500, 'Internal Server Error');
-    });
+    // Save user and login success in Redis
+    client.hSet(`user:${user._id}`, userJson);
+    client.lPush(`login-attempts:${username}`, JSON.stringify({timestamp, success: true}));
+
 
     res.json({ message: 'Login successful', token, user: user._id });
 };
 
 const logout = async (req, res) => {
     // Remove the user in Redis
-    client.del(`user:${req.user.id}`, (err) => {
-        if (err) handleErrors(res, 500, 'Internal Server Error');
-    });
+    client.del(`user:${req.user.id}`);
 
     // Respond with a successful logout message
     res.json({ message: 'Logout successful' });

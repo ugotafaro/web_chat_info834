@@ -5,6 +5,7 @@ import { Task } from '../task';
 import { concatMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from './auth.service';
+import { User } from '../user';
 
 
 @Injectable({
@@ -32,17 +33,16 @@ export class TaskService {
   }
 
   getUserTasks(filter: any = {}): Observable<Task[]> {
-
-    this.authService.getUserId().subscribe((userId: string | null) => {
-      filter.user = userId;
+    this.authService.getUser().subscribe((user: String | null) => {
+      filter.user = user;
     });
 
     return this.getTasks(filter);
   }
 
   getUserCategories(filter: any = {}): Observable<string[]> {
-    this.authService.getUserId().subscribe((userId: string | null) => {
-      filter.user = userId;
+    this.authService.getUser().subscribe((user: String | null) => {
+      filter.user = user;
     });
 
     return this.getCategories(filter);
@@ -64,8 +64,8 @@ export class TaskService {
   }
 
   addUserTask(task: any, filter: any = {}): Observable<any> {
-    this.authService.getUserId().subscribe((userId: string | null) => {
-      filter.user = userId;
+    this.authService.getUser().subscribe((user: String | null) => {
+      filter.user = user;
     });
 
     return this.addTask(task, filter);

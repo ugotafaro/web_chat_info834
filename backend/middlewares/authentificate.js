@@ -5,8 +5,6 @@ const { handleErrors } = require('../util');
 const authenticated = async (req, res, next) => {
     const token = req.header('Authorization');
 
-    const timestamp = new Date().toISOString();
-
     // Check if token is given
     if (!token) return handleErrors(res, 401, 'Unauthorized');
 
@@ -30,7 +28,6 @@ const authenticated = async (req, res, next) => {
     });
 
     req.user.id = decoded.userId;
-    req.timestamp = timestamp;
     next();
 };
 
