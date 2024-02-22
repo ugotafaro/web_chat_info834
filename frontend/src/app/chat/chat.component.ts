@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, ViewChild } from '@angular/core';
 import { Message } from '../../message';
 import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
@@ -11,8 +11,9 @@ import { PickerComponent, PickerModule } from '@ctrl/ngx-emoji-mart';
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss'
 })
-export class ChatComponent {
+export class ChatComponent implements AfterViewChecked {
 
+  @ViewChild('chatSection') chatSection!: ElementRef;
   listMessages!: Message[];
   messageForm = new FormGroup({
     message : new FormControl('')
@@ -60,5 +61,15 @@ export class ChatComponent {
     console.log(message);
     this.addMessage(message!);
     this.messageForm.reset();
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.chatSection.nativeElement.scrollTop = this.chatSection.nativeElement.scrollHeight;
+    } catch(err) { }
   }
 }
