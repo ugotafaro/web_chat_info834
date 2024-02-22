@@ -4,6 +4,8 @@ import { Message } from '../../message';
 import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChatService as ChatSocketService } from '../chat.service';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
@@ -13,7 +15,7 @@ import { ChatService as ChatSocketService } from '../chat.service';
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent implements AfterViewChecked {
-
+  isAuth: boolean = false;
   @ViewChild('chatSection') chatSection!: ElementRef;
   listMessages!: Message[];
   messageForm = new FormGroup({
@@ -22,7 +24,7 @@ export class ChatComponent implements AfterViewChecked {
   showEmojiPicker = false;
   set = 'apple';
 
-  constructor(private chatService: ChatSocketService) {
+  constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router) {
     chatService.messages.subscribe(msg => {
       this.listMessages.push(msg);
     });
@@ -36,6 +38,7 @@ export class ChatComponent implements AfterViewChecked {
     //   new Message(4, 'I am fine', new Date().getHours(), false, 2),
     // ];
     this.listMessages = [];
+    this.authService.isAuthenticated().subscribe((isAuth) => { this.isAuth = isAuth });
   }
 
   addMessage(message: string) {
@@ -76,5 +79,12 @@ export class ChatComponent implements AfterViewChecked {
     try {
       this.chatSection.nativeElement.scrollTop = this.chatSection.nativeElement.scrollHeight;
     } catch(err) { }
+  }
+
+  logout() {
+    this.authService.attemptLogout().subscribe({
+      next: () => this.router.navigate(['/']),
+      error: (error) => console.error(error),
+    });
   }
 }
