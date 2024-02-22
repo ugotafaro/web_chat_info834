@@ -8,7 +8,7 @@
 <body class="flex">
     <div class="w-1/4 h-screen overflow-y-scroll border-r-2">
         <h1 class="text-xl m-5">
-            PolyChat
+            Web Chat
         </h1>
         <div class="flex mt-10 hover:bg-gray-200 p-5 m-1 rounded-md">
             <img class="w-12 h-12 rounded-full" src="https://i0.wp.com/studio-baindelumiere.fr/wp-content/uploads/2022/04/photo-profil-site-de-rencontre.webp?resize=683%2C1024&ssl=1" alt="Jese image">
@@ -24,9 +24,9 @@
     <div>
 
     </div>
-    <div #chatSection class="w-full h-screen overflow-y-scroll">
-        <div class="sticky top-0 z-10 border-b h-14 bg-white">
-            <div class="flex m-2">
+    <div #chatSection class="w-full h-screen overflow-y-scroll ml-3">
+        <div class="flex sticky w-full top-0 z-10 border-b h-14 bg-white">
+            <div class="flex ml-2 mt-2 relative">
                 <img class="w-10 h-10 rounded-full" src="https://i0.wp.com/studio-baindelumiere.fr/wp-content/uploads/2022/04/photo-profil-site-de-rencontre.webp?resize=683%2C1024&ssl=1" alt="Jese image">
                 <div class="flex flex-col">
                     <span class="font-semibold ml-2">Bonnie Green</span>
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <div class="">
+        <div>
             <div class="flex flex-col h-screen mt-5">
                 <div *ngFor="let message of listMessages" class="flex item-start gap-2.5 mt-2" [ngClass]="{'ml-auto' : !message.isUserMessage}">
                     <img class="w-8 h-8 rounded-full" src="https://angular.io/assets/images/logos/angular/shield-large.svg" alt="Jese image">
@@ -51,11 +51,6 @@
                        </svg>
                     </button>
                  </div>
-                
-                 
-                
-                 
-                 
                 <form class="mt-auto sticky w-full bottom-0" [formGroup]="messageForm" (ngSubmit)="onSubmit()">
                     <label for="chat" class="sr-only">Your message</label>
                     <div class="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
