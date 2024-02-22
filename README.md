@@ -5,6 +5,10 @@ Node fournit une API RESTful (avec Express) lié MongoDB.
 
 Angular fournit le frontend et accède à l'API.
 
+# Installation
+Avant de passez à la partie launch, pensez à télécharger les dépendances:
+- `cd frontend; npm install; cd ../backend; npm install;`
+
 # Launch
 Pour lancer l'appli, utiliser trois terminals bash :
 - Pour le frontend -> `cd frontend; ng serve;`

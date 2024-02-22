@@ -17,6 +17,7 @@ export class TaskService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   getTask(id: string): Observable<Task> {
+    return new Observable<Task>();
     return this.http.get<{ data: {} }>(`${this.apiUrl}/task/${id}`).pipe(
       map((res) => { return this.handleTask(res.data) }),
       catchError(this.handleError)
@@ -24,6 +25,7 @@ export class TaskService {
   }
 
   getTasks(filter: any = {}): Observable<Task[]> {
+    return new Observable<Task[]>();
     return this.http.post<{ data: {}[] }>(`${this.apiUrl}/tasks`, filter).pipe(
       map(
         (res) => { return res.data.map(this.handleTask) },
@@ -33,6 +35,7 @@ export class TaskService {
   }
 
   getUserTasks(filter: any = {}): Observable<Task[]> {
+    return new Observable<Task[]>();
     this.authService.getUser().subscribe((user: String | null) => {
       filter.user = user;
     });
@@ -41,6 +44,7 @@ export class TaskService {
   }
 
   getUserCategories(filter: any = {}): Observable<string[]> {
+    return new Observable<string[]>();
     this.authService.getUser().subscribe((user: String | null) => {
       filter.user = user;
     });
@@ -49,6 +53,7 @@ export class TaskService {
   }
 
   private getCategories(filter: any = {}): Observable<string[]> {
+    return new Observable<string[]>();
     return this.http.post<{ data: string[] }>(`${this.apiUrl}/categories`, filter).pipe(
       map((res) => res.data),
       catchError(this.handleError)
@@ -64,6 +69,7 @@ export class TaskService {
   }
 
   addUserTask(task: any, filter: any = {}): Observable<any> {
+    return new Observable<any>();
     this.authService.getUser().subscribe((user: String | null) => {
       filter.user = user;
     });
@@ -72,6 +78,7 @@ export class TaskService {
   }
 
   toggleStatusTask(id: any): Observable<any> {
+    return new Observable<any>();
     return this.http.post<any>(`${this.apiUrl}/toggle-task/${id}`, {}).pipe(
         map((res) => res),
         catchError(this.handleError)
@@ -80,6 +87,7 @@ export class TaskService {
 
 
   deleteCategory(category: any): Observable<any> {
+    return new Observable<any>();
     return this.http.post<any>(`${this.apiUrl}/delete-category`, { category }).pipe(
       map((res) => res.data),
       catchError(this.handleError)
@@ -87,6 +95,7 @@ export class TaskService {
   }
 
   deleteTasks(taskIds: string[]): Observable<any> {
+    return new Observable<any>();
     // Créez un tableau d'observables pour chaque requête de suppression
     const deleteRequests: Observable<any>[] = taskIds.map(id =>
       this.http.post<any>(`${this.apiUrl}/delete-task`, { id }).pipe(

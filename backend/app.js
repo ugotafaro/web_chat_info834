@@ -1,14 +1,16 @@
 const express =     require('express');
 const cors =        require('cors');
-const http =        require('http');
 const bodyParser =  require('body-parser');
-const db =          require('./db.js');
-const ChatWS = require('./websocket.js');
+const ChatWS =      require('./websocket.js');
+
+// Database (MongoDB)
+const db = require('./db.js');
 
 // App
 const app = express();
-const server = http.createServer(app);
-const wss = new ChatWS(server);
+
+// WebSocket
+const wss = new ChatWS({ port: 3030 });
 
 // Middlewares
 app.use(cors());

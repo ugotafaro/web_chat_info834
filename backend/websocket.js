@@ -1,38 +1,47 @@
-const WebSocket = require('ws');
+const ws = require('ws');
 
-class ChatWS extends WebSocket.Server {
-    constructor(server) {
-        super({ server });
-        server.on('connection', this.onConnection.bind(this));
-        server.on('listening', this.onListening.bind(this));
-        server.on('close', this.onClose.bind(this));
+class ChatWS extends  ws.WebSocketServer {
+    constructor(options) {
+        super(options);
+        this.on('connection', this.onConnection.bind(this));
+        this.on('listening', this.onListening.bind(this));
+        this.on('error', this.onError.bind(this));
     }
 
     onListening() {
-        console.log('[INFO] WebSocket server is listening');
+        console.log(`[INFO] WebSocketServer up on ws://localhost:${this.options.port}`);
     }
 
     onConnection(ws) {
-        console.log('[INFO] New WebSocket connection');
+        console.log('[WS] Nouvelle connexion');1
 
+        // Send hello to client
+        let message = JSON.stringify({ content: 'Hello from server' });
+        ws.send(message);
+
+        // Binding
         ws.on('message', this.onMessage.bind(this, ws));
         ws.on('close', this.onClose.bind(this, ws));
     }
 
     onMessage(ws, message) {
-        console.log('[INFO] Received message:', message);
+        let data = JSON.parse(message);
+        console.log(`[WS] Receving ${data.content}`);
 
-        // Add your custom message handling logic here
-        // For example, you can broadcast the message to all connected clients
-        this.wss.clients.forEach((client) => {
-        if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
-        });
+        // TODO : Broadcast
+        // this.clients.forEach((client) => {
+        //     if (client !== ws && client.readyState === ws.OPEN) {
+        //         client.send(message);
+        //     }
+        // });
     }
 
     onClose(ws) {
-        console.log('[INFO] WebSocket connection closed');
+        console.log('[WS] Connexion fermée');
+    }
+
+    onError(error) {
+        console.error('[WS] Erreur ', error);
     }
 }
 
