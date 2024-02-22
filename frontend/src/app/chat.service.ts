@@ -21,19 +21,19 @@ export class ChatService {
       // Map the response to a Message
       map((response: MessageEvent): Message => {
         let data = JSON.parse(response.data);
-        return { id: '1', content: data.content };
+        return new Message(data.id, data.content, data.timestamp, false, data.userIdSender);
       })
 
     // Subscribe to the messages
     ).subscribe((message: Message) => {
-      console.log(`Receiving ${message.content}`);
+      // console.log(`Receiving ${message.content}`);
       this.messages.next(message);
     });
 
     // Subscribe to the messages subject to send messages
     this.messages.subscribe((message: Message) => {
-      console.log(`Sending "${message.content}"`);
-      this.ws.next(JSON.stringify(message));
+      // console.log(`Sending "${message.content}"`);
+      this.ws.next(message);
     });
   }
 }

@@ -26,7 +26,12 @@ class ChatWS extends  ws.WebSocketServer {
 
     onMessage(ws, message) {
         let data = JSON.parse(message);
-        console.log(`[WS] Receving ${data.content}`);
+        // console.log(`[WS] Receiving \"${data['content']}\"`);
+
+        if (data['content'] === 'ping') {
+            ws.send(JSON.stringify({ content: 'pong' }));
+        }
+
 
         // TODO : Broadcast
         // this.clients.forEach((client) => {
