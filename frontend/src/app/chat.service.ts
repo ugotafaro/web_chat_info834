@@ -11,7 +11,6 @@ export class ChatService {
   private ws : Subject<any>;
 
   constructor(wsService: WebsocketService) {
-
     // Create a new observable that will be used to send messages to the server
     this.messages = new Subject<Message>();
     this.ws = wsService.connect(CHAT_URL);
@@ -35,5 +34,9 @@ export class ChatService {
       // console.log(`Sending "${message.content}"`);
       this.ws.next(message);
     });
+  }
+
+  close() {
+    this.ws.complete();
   }
 }

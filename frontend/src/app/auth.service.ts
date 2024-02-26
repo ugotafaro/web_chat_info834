@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
-import { User } from '../user'; // Import the 'User' type from the appropriate module
 
 @Injectable({
   providedIn: 'root'
@@ -58,15 +57,20 @@ export class AuthService {
     );
   }
 
-  getUser(): Observable<String | null> {
+  getUser$(): Observable<String | null> {
     return this.user.asObservable();
   }
 
-  getToken(): Observable<String | null> {
+  getToken$():  Observable<String | null> {
     return this.token.asObservable();
   }
 
-  isAuthenticated(): Observable<boolean> {
-    return this.getToken().pipe( map(token => !!token) );
+  isAuthenticated$(): Observable<boolean> {
+    // Get current value of is authenticated
+    return this.user.pipe(map(user => user !== null));
+  }
+
+  isAuthenticated(): boolean {
+    return this.user.getValue() !== null;
   }
 }

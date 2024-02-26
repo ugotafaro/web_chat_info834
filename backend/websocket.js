@@ -53,10 +53,9 @@ class ChatWS extends  ws.WebSocketServer {
             return;
         }
 
-
-
-
         // TODO : Broadcast
+        // Display clients size
+        // console.log(`[WS] ${this.clients.size} clients`);
         // this.clients.forEach((client) => {
         //     if (client !== ws && client.readyState === ws.OPEN) {
         //         client.send(message);

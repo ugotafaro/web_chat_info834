@@ -6,6 +6,7 @@ import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChatService as ChatSocketService } from '../chat.service';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-chat',
@@ -15,7 +16,8 @@ import { Router } from '@angular/router';
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent implements AfterViewChecked {
-  isAuth: boolean = false;
+  isAuth: Observable<boolean> = this.authService.isAuthenticated$();
+
   @ViewChild('chatSection') chatSection!: ElementRef;
   listMessages!: Message[];
   messageForm = new FormGroup({
@@ -38,7 +40,6 @@ export class ChatComponent implements AfterViewChecked {
     //   new Message(4, 'I am fine', new Date().getHours(), false, 2),
     // ];
     this.listMessages = [];
-    this.authService.isAuthenticated().subscribe((isAuth) => { this.isAuth = isAuth });
   }
 
   addMessage(message: string) {
@@ -83,7 +84,10 @@ export class ChatComponent implements AfterViewChecked {
 
   logout() {
     this.authService.attemptLogout().subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        this.chatService.close();
+        this.router.navigate(['/login']);
+      },
       error: (error) => console.error(error),
     });
   }
