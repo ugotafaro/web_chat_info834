@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    lastname: String,
+    firstname: String,
     token: String,
 });
 

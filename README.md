@@ -1,9 +1,11 @@
-# INFO734 todo list
-Une application Node construite avec MongoDB et Angular.
+# INFO834 - ✝Messagé
+Une application de web chat en temps réel.
 
-Node fournit une API RESTful (avec Express) lié MongoDB.
+Coté backend : Node fournit une API REST avec Express, lié à une base de données MongoDB et à Redis.
 
-Angular fournit le frontend et accède à l'API.
+Coté frontend : Angular fournit le frontend et accède à l'API.
+
+![techstack](./techstack.png)
 
 # Installation
 Avant de passez à la partie launch, pensez à télécharger les dépendances:

@@ -4,6 +4,10 @@ import { Message } from '../../message';
 import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChatService as ChatSocketService } from '../chat.service';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { User } from '../../user';
 
 @Component({
   selector: 'app-chat',
@@ -13,6 +17,8 @@ import { ChatService as ChatSocketService } from '../chat.service';
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent implements AfterViewChecked {
+  isAuth: Observable<boolean> = this.authService.isAuthenticated$();
+  user: Observable<User | null> = this.authService.getUser$();
 
   @ViewChild('chatSection') chatSection!: ElementRef;
   listMessages!: Message[];
@@ -22,7 +28,7 @@ export class ChatComponent implements AfterViewChecked {
   showEmojiPicker = false;
   set = 'apple';
 
-  constructor(private chatService: ChatSocketService) {
+  constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router) {
     chatService.messages.subscribe(msg => {
       this.listMessages.push(msg);
     });
@@ -76,5 +82,15 @@ export class ChatComponent implements AfterViewChecked {
     try {
       this.chatSection.nativeElement.scrollTop = this.chatSection.nativeElement.scrollHeight;
     } catch(err) { }
+  }
+
+  logout() {
+    this.authService.attemptLogout().subscribe({
+      next: () => {
+        this.chatService.close();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => console.error(error),
+    });
   }
 }

@@ -8,32 +8,35 @@ const CHAT_URL = "ws://localhost:3030";
 @Injectable()
 export class ChatService {
   public messages: Subject<Message>;
-  private ws : Subject<any>;
+  private wsService: WebsocketService;
 
   constructor(wsService: WebsocketService) {
-
+    this.wsService = wsService;
     // Create a new observable that will be used to send messages to the server
     this.messages = new Subject<Message>();
-    this.ws = wsService.connect(CHAT_URL);
-
     // Connect to the server
-    this.ws.pipe(
+    let ws: Subject<any> = wsService.connect(CHAT_URL);
+
+    // Handle message reception
+    ws.pipe(
       // Map the response to a Message
       map((response: MessageEvent): Message => {
         let data = JSON.parse(response.data);
         return new Message(data.id, data.content, data.timestamp, false, data.userIdSender);
       })
-
-    // Subscribe to the messages
-    ).subscribe((message: Message) => {
-      // console.log(`Receiving ${message.content}`);
-      this.messages.next(message);
+      // Emit the message to the observable
+      ).subscribe((message: Message) => {
+        this.messages.next(message);
     });
 
-    // Subscribe to the messages subject to send messages
+    // Handle message emission
     this.messages.subscribe((message: Message) => {
-      // console.log(`Sending "${message.content}"`);
-      this.ws.next(message);
+      ws.next(message);
     });
+  }
+
+  close() {
+    this.messages.complete();
+    this.wsService.close();
   }
 }

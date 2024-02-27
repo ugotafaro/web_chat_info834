@@ -1,25 +1,23 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
-import { User } from '../user'; // Import the 'User' type from the appropriate module
+import { User } from '../user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api';
-  private user: BehaviorSubject<String | null>;
-  private token: BehaviorSubject<String | null>;
+  private user: BehaviorSubject<User | null>;
 
   constructor(private http: HttpClient) {
-    this.user = new BehaviorSubject<String | null>(localStorage.getItem('user'));
-    this.token = new BehaviorSubject<String | null>(localStorage.getItem('token'));
+    this.user = new BehaviorSubject<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   }
 
   attemptLogin(loginInfo: Object): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, loginInfo).pipe(
       map(response => {
-        localStorage.setItem('user', response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
         localStorage.setItem('token', response.token);
         this.user.next(response.token);
@@ -41,8 +39,6 @@ export class AuthService {
     // because it is better for user experience
     localStorage.removeItem('user');
     this.user.next(null);
-    localStorage.removeItem('token');
-    this.token.next(null);
 
     return this.http.post<any>(`${this.apiUrl}/logout`, {}, { headers });
   }
@@ -52,21 +48,19 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', response.user);
         this.user.next(response.user);
-        localStorage.setItem('token', response.token);
-        this.token.next(response.token);
       })
     );
   }
 
-  getUser(): Observable<String | null> {
+  getUser$(): Observable<User | null> {
     return this.user.asObservable();
   }
 
-  getToken(): Observable<String | null> {
-    return this.token.asObservable();
+  isAuthenticated$(): Observable<boolean> {
+    return this.user.pipe(map(user => user !== null));
   }
 
-  isAuthenticated(): Observable<boolean> {
-    return this.getToken().pipe( map(token => !!token) );
+  isAuthenticated(): boolean {
+    return this.user.getValue() !== null;
   }
 }

@@ -29,10 +29,27 @@
             <div class="flex ml-2 mt-2 relative">
                 <img class="w-10 h-10 rounded-full" src="https://i0.wp.com/studio-baindelumiere.fr/wp-content/uploads/2022/04/photo-profil-site-de-rencontre.webp?resize=683%2C1024&ssl=1" alt="Jese image">
                 <div class="flex flex-col">
-                    <span class="font-semibold ml-2">Bonnie Green</span>
+                    <span class="font-semibold ml-2">{{ (user | async)?.username }}</span>
                     <p class="ml-2 text-gray-600">En ligne il y a 10 min</p>
                 </div>
             </div>
+            <a (click)="logout()" *ngIf="isAuth | async" class="flex items-center lg:order-2">
+                <button type="button"  class="flex items-center text-white bg-purple-700 hover:bg-purple-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" >
+                  <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
+                    <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
+                  </svg>
+                  <span class="ml-2">Se déconnecter</span>
+                </button>
+              </a>
+
+              <a href="/login" *ngIf="!(isAuth | async)" class="flex items-center lg:order-2">
+                <button type="button" class="text-white items-center bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" >
+                  <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M7 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm2 1H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                  </svg>
+                  Se connecter
+                </button>
+              </a>
         </div>
         <div>
             <div class="flex flex-col h-screen mt-5">
@@ -62,15 +79,15 @@
                             </svg>
                             <span class="sr-only">Upload image</span>
                         </button>
-                       
+
                         <button (click)="toggleEmojiPicker()" type="button" class="p-2 text-gray-500 rounded-lg cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600">
                             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.408 7.5h.01m-6.876 0h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM4.6 11a5.5 5.5 0 0 0 10.81 0H4.6Z"/>
                             </svg>
                             <span class="sr-only">Add emoji</span>
-                            
+
                         </button>
-                        
+
                         <textarea blur="onBlur()"
                         (focus)="onFocus()" formControlName="message" id="chat" rows="1" class="mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Your message..."></textarea>
                             <button type="submit" class="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600">
@@ -79,11 +96,11 @@
                             </svg>
                             <span class="sr-only">Send message</span>
                         </button>
-                        
+
                     </div>
-                    
+
                 </form>
-                
+
                 <emoji-mart
                  class="emoji-mart position-absolute top-0 left-0"
                  set='apple'
@@ -91,7 +108,7 @@
                  (emojiSelect)="addEmoji($event)"
                  title="Pick your emoji…"
                  [darkMode]="false"
-                 >                   
+                 >
                 </emoji-mart>
             </div>
         </div>
@@ -102,4 +119,3 @@
 </html>
 
 
- 

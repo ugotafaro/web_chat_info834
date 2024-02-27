@@ -16,7 +16,6 @@ export class HeaderComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.authService.isAuthenticated().subscribe((isAuth) => { this.isAuth = isAuth });
   }
 
   logout() {
