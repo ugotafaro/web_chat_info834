@@ -43,8 +43,8 @@ const signup = async (req, res) => {
     client.hSet(`user:${newUser._id}`, {username, token, timestamp});
     client.lPush(`login-attempts:${username}`, JSON.stringify({timestamp, success: true}));
 
-
-    res.json({ message: 'Signup successful', token, user: newUser._id });
+    // Respond but without the user password
+    res.json({ message: 'User created', user: { username, lastname, firstname, token, id: newUser._id } });
 };
 
 const login = async (req, res) => {
@@ -80,7 +80,8 @@ const login = async (req, res) => {
     client.hSet(`user:${user._id}`, userJson);
     client.lPush(`login-attempts:${username}`, JSON.stringify({timestamp, success: true}));
 
-    res.json({ message: 'Login successful', token, user: user._id });
+    // Respond but without the user password
+    res.json({ message: 'Login successful', user: { username, lastname: user.lastname, firstname: user.firstname, token, id: user._id } });
 };
 
 const logout = async (req, res) => {

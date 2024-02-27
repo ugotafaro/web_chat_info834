@@ -7,6 +7,7 @@ import { ChatService as ChatSocketService } from '../chat.service';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { User } from '../../user';
 
 @Component({
   selector: 'app-chat',
@@ -17,6 +18,7 @@ import { Observable } from 'rxjs';
 })
 export class ChatComponent implements AfterViewChecked {
   isAuth: Observable<boolean> = this.authService.isAuthenticated$();
+  user: Observable<User | null> = this.authService.getUser$();
 
   @ViewChild('chatSection') chatSection!: ElementRef;
   listMessages!: Message[];

@@ -36,7 +36,7 @@ export class TaskService {
 
   getUserTasks(filter: any = {}): Observable<Task[]> {
     return new Observable<Task[]>();
-    this.authService.getUser$().subscribe((user: String | null) => {
+    this.authService.getUser$().subscribe((user: User | null) => {
       filter.user = user;
     });
 
@@ -45,7 +45,7 @@ export class TaskService {
 
   getUserCategories(filter: any = {}): Observable<string[]> {
     return new Observable<string[]>();
-    this.authService.getUser$().subscribe((user: String | null) => {
+    this.authService.getUser$().subscribe((user: User | null) => {
       filter.user = user;
     });
 
@@ -70,7 +70,7 @@ export class TaskService {
 
   addUserTask(task: any, filter: any = {}): Observable<any> {
     return new Observable<any>();
-    this.authService.getUser$().subscribe((user: String | null) => {
+    this.authService.getUser$().subscribe((user: User | null) => {
       filter.user = user;
     });
 
