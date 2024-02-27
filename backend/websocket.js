@@ -55,7 +55,7 @@ class ChatWS extends  ws.WebSocketServer {
 
         // TODO : Broadcast
         // Display clients size
-        // console.log(`[WS] ${this.clients.size} clients`);
+        console.log(`[WS] ${this.clients.size} clients`);
         // this.clients.forEach((client) => {
         //     if (client !== ws && client.readyState === ws.OPEN) {
         //         client.send(message);
@@ -65,6 +65,7 @@ class ChatWS extends  ws.WebSocketServer {
 
     onClose(ws) {
         console.log('[WS] Connexion fermée');
+        console.log(`[WS] ${this.clients.size} clients`);
     }
 
     onError(error) {

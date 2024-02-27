@@ -29,6 +29,8 @@ export class SignUpComponent {
     username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(20)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]*$/)]],
     passwordConfirm: ['', Validators.required],
+    firstname: ['', [Validators.minLength(4), Validators.pattern(/^[\p{L}-]+$/u)]],
+    lastname: ['', [Validators.minLength(4), Validators.pattern(/^[\p{L}-]+$/u)]],
   }, { validators: passwordMatchValidator() })
   isSubmitted: boolean = false;
   customErrorMessage: string = '';

@@ -6,6 +6,7 @@ export class WebsocketService {
   constructor() {}
 
   private subject!: Subject<MessageEvent>;
+  private ws!: WebSocket;
 
   public connect(url: string | URL): Subject<MessageEvent> {
     if (!this.subject) {
@@ -16,22 +17,32 @@ export class WebsocketService {
   }
 
   private create(url: string | URL): Subject<MessageEvent> {
-    let ws = new WebSocket(url);
+    this.ws = new WebSocket(url);
 
     let observable = Observable.create((obs: Observer<MessageEvent>) => {
-      ws.onmessage = obs.next.bind(obs);
-      ws.onerror = obs.error.bind(obs);
-      ws.onclose = obs.complete.bind(obs);
-      return ws.close.bind(ws);
+      this.ws.onmessage = obs.next.bind(obs);
+      this.ws.onerror = obs.error.bind(obs);
+      this.ws.onclose = obs.complete.bind(obs);
+      return this.ws.close.bind(this.ws);
     });
 
     let observer = {
       next: (data: Object) => {
-        if (ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify(data));
+        if (this.ws.readyState === WebSocket.OPEN) {
+          this.ws.send(JSON.stringify(data));
+        } else {
+          console.log("[WS] Not connected to " + url);
         }
       }
     };
     return Subject.create(observer, observable);
+  }
+
+  public close() {
+    if (this.subject) {
+      this.ws.close();
+      this.subject.complete();
+      console.log("[WS] Disconnected");
+    }
   }
 }

@@ -6,7 +6,7 @@ const User = require('../models/UserModel.js');
 const { handleErrors } = require('../util.js');
 
 const signup = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, lastname, firstname } = req.body;
 
     // Check if credentials are given
     if (!username || !password) return handleErrors(res, 401, 'Username and password are required');
@@ -24,8 +24,15 @@ const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user
-    const newUser = new User({ username: username, password: hashedPassword });
-    await newUser.save();
+    const newUser = new User({ username, lastname, firstname, password: hashedPassword});
+
+    // Save the user in MongoDB and check for errors
+    try {
+        await newUser.save();
+    } catch (err) {
+        client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'Error saving user in database'}));
+        return handleErrors(res, 500, 'Error saving user in database');
+    }
 
     // Generate a JWT and save it
     const token = jwt.sign({ userId: newUser._id }, 'secret-key', { expiresIn: '1h' });
@@ -72,7 +79,6 @@ const login = async (req, res) => {
     // Save user and login success in Redis
     client.hSet(`user:${user._id}`, userJson);
     client.lPush(`login-attempts:${username}`, JSON.stringify({timestamp, success: true}));
-
 
     res.json({ message: 'Login successful', token, user: user._id });
 };

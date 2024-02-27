@@ -66,7 +66,6 @@ export class AuthService {
   }
 
   isAuthenticated$(): Observable<boolean> {
-    // Get current value of is authenticated
     return this.user.pipe(map(user => user !== null));
   }
 
