@@ -10,18 +10,8 @@ const MessageSchema = new mongoose.Schema({
     type:String,
     required:true,
   },
-  date:{
-    type:Date,
-    required:false,
-  },
-  id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    valide: {
-      validator: (value) => ObjectId.isValid(value),
-      message: 'Invalid ObjectId',
-    }
-  },
+ 
+  
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -37,9 +27,14 @@ const MessageSchema = new mongoose.Schema({
       validator: (value) => ObjectId.isValid(value),
       message: 'Invalid ObjectId',
     }
-  }],
+  }]
   
-});
+  
+},
+{
+  timestamps: true
+}, 
+{ collection: 'messages' });
 
 const Message = mongoose.model('Message', MessageSchema);
 

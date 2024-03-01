@@ -2,63 +2,206 @@ const Message = require('../models/MessageModel.js');
 const { ObjectId } = require('mongodb');
 const { handleErrors } = require('../util.js');
 
-const new_message = async (req, res) =>{
+
+const new_message = async (req, res) => {
     let data = req.body.message;
     const senderId = req.body.sender;
-    // Check if task is given
+
+    // Vérifiez si le message est donné
     if (!data) return handleErrors(res, 400, 'Message is required');
 
-    // Check if the id is a valid ObjectId
-    if (senderId && !ObjectId.isValid(senderId)) return handleErrors(res, 400, 'Invalid user id');
+    // Vérifiez si l'ID est un ObjectId valide
+    if (senderId && !ObjectId.isValid(senderId)) return handleErrors(res, 400, 'Invalid sender id');
 
     try {
-        data.user = new ObjectId(userId);
-        let task = await Message.create(data);
-        return res.json({ message: 'Task created successfully', data: task });
+        data.sender = new ObjectId(senderId);
+        
+        let message = await Message.create(data);
+        return res.json({ message: 'Message created successfully', data: message });
+    } catch (e) {
+       
+        return handleErrors(res, e.code, e.message);
+    }
+};
+ 
+
+const get_conversation = async (req, res) => {
+    let { receivers } = req.body;
+
+    // Vérifiez si les destinataires sont spécifiés
+    if (!receivers || receivers.length === 0) {
+        return handleErrors(res, 400, 'Receivers are required');
+    }
+
+    // Vérifiez si les ID des destinataires sont valides
+    if (receivers.some(receiver => !ObjectId.isValid(receiver))) {
+        return handleErrors(res, 400, 'Invalid receiver id');
+    }
+
+    try {
+        
+        receivers = receivers.map(receiver => new ObjectId(receiver));
+
+        // Recherchez les messages associés aux destinataires spécifiés
+        const messages = await Message.find({ receivers: { $all: receivers } });
+
+        return res.json({ data: messages });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
+};
 
+const delete_message = async (req, res) => {
+    const { id } = req.body;
 
-
-
-
-
-
-
-
-
-
+    // Vérifiez si l'ID est donné
+    if (!id) {
+        return handleErrors(res, 400, 'ID is required');
+    }
 
     
+    if (!ObjectId.isValid(id)) {
+        return handleErrors(res, 400, 'Invalid ObjectId');
+    }
 
-}
-const get_conversation = async (req, res) =>{
-    
-    
+    try {
+        
+        const message = await Message.deleteOne({ _id: new ObjectId(id) });
 
-}
-const delete_message = async (req, res) =>{
-    
-    
+        return res.json({ message: 'Message deleted successfully', data: message });
+    } catch (e) {
+        return handleErrors(res, e.code, e.message);
+    }
+};
 
-}
 const delete_conversation = async (req, res) =>{
+    const { receivers } = req.body;
+
+    // Vérifiez si les destinataires sont spécifiés
+    if (!receivers || receivers.length === 0) {
+        return handleErrors(res, 400, 'Receivers are required');
+    }
+
+    // Vérifiez si les ID des destinataires sont valides
+    if (receivers.some(receiver => !ObjectId.isValid(receiver))) {
+        return handleErrors(res, 400, 'Invalid receiver id');
+    }
+
+    try {
+        
+        receivers = receivers.map(receiver => new ObjectId(receiver));
+
+        // Supprimez les messages associés aux destinataires spécifiés
+        const messages = await Message.deleteMany({ receivers: { $all: receivers } });
+
+        return res.json({ message: 'Conversation deleted successfully', data: messages });
+    } catch (e) {
+        return handleErrors(res, e.code, e.message);
+    }
     
     
 
 }
-const add_receiver = async (req, res) =>{
-    
-    
+const add_receiver = async (req, res) => {   
+    const { id, receiver } = req.body;
 
+    // Vérifiez si l'ID et le destinataire sont donnés
+    if (!id || !receiver) {
+        return handleErrors(res, 400, 'ID and receiver are required');
+    }
+
+    // Vérifiez si l'ID est un ObjectId valide
+    if (!ObjectId.isValid(id)) {
+        return handleErrors(res, 400, 'Invalid ObjectId');
+    }
+
+    try {
+        // Récupérez tous les messages ayant les mêmes destinataires
+        receivers = receivers.map(receiver => new ObjectId(receiver));
+        const messages = await Message.find({ receivers: { $all: receivers } });
+
+        // Mettez à jour chaque message pour inclure le nouveau destinataire
+        const promises = messages.map(async (message) => {
+            const updatedMessage = await Message.findByIdAndUpdate(message._id, { $push: { receivers: new ObjectId(receiver) } }, { new: true });
+            return updatedMessage;
+        });
+
+        // Exécutez toutes les mises à jour en parallèle
+        const updatedMessages = await Promise.all(promises);
+
+        return res.json({ message: 'Receivers added to all messages in the conversation', data: updatedMessages });
+    } catch (e) {
+        return handleErrors(res, e.code, e.message);
+    }
 }
-const leave_conversation = async (req, res) =>{
+
+const leave_conversation = async (req, res) =>{ 
+    const { removeId, receiver } = req.body;
+
+    // Vérifiez si l'ID et le destinataire sont donnés
+    if (!removeId || !receiver) {
+        return handleErrors(res, 400, 'ID and receiver are required');
+    }
+
+    // Vérifiez si l'ID est un ObjectId valide
+    if (!ObjectId.isValid(removeId)) {
+        return handleErrors(res, 400, 'Invalid ObjectId');
+    }
+
+    try {
+        // Récupérez tous les messages ayant les mêmes destinataires
+        receivers = receivers.map(receiver => new ObjectId(receiver));
+        const messages = await Message.find({ receivers: { $all: receivers } });
+
+        // Mettez à jour chaque message pour enlever le destinataire
+        const promises = messages.map(async (message) => {
+            const updatedMessage = await Message.findByIdAndUpdate(message._id, { $pull: { receivers: new ObjectId(removeId) } }, { new: true });
+            return updatedMessage;
+        });
+
+        // Exécutez toutes les mises à jour en parallèle
+        const updatedMessages = await Promise.all(promises);
+
+        return res.json({ message: 'Receiver removed from all messages in the conversation', data: updatedMessages });
+    } catch (e) {
+        return handleErrors(res, e.code, e.message);
+    }
     
     
 
 }
 const refractor_conversation_name = async (req, res) =>{
+    const { receivers, newName } = req.body;
+
+    // Vérifiez si la liste des receveurs et le nouveau nom sont donnés
+    if (!receivers || !newName) {
+        return handleErrors(res, 400, 'Receivers list and new name are required');
+    }
+
+    try {
+        // Récupérez tous les messages ayant les mêmes destinataires
+        receivers = receivers.map(receiver => new ObjectId(receiver));
+        const messages = await Message.find({ receivers: { $all: receivers } });
+
+        // Mettez à jour chaque message pour modifier le nom de la conversation
+        const promises = messages.map(async (message) => {
+            const updatedMessage = await Message.findByIdAndUpdate(
+                message._id,
+                { conversation_name: newName },
+                { new: true }
+            );
+            return updatedMessage;
+        });
+
+        // Exécutez toutes les mises à jour en parallèle
+        const updatedMessages = await Promise.all(promises);
+
+        return res.json({ message: 'Conversation name updated for all messages in the conversation', data: updatedMessages });
+    } catch (e) {
+        return handleErrors(res, e.code, e.message);
+    }
+
+    
     
     
 
@@ -72,3 +215,4 @@ module.exports = {
     leave_conversation,
     refractor_conversation_name,
   };
+
