@@ -137,34 +137,41 @@ const delete_conversation = async (req, res) =>{
 
 
 }
-const add_receiver = async (req, res) => {
-    const { id, receiver } = req.body;
+const join_conversation = async (req, res) => {
+    let { new_user, users, name } = req.body;
 
-    // Vérifiez si l'ID et le destinataire sont donnés
-    if (!id || !receiver) {
-        return handleErrors(res, 400, 'ID and receiver are required');
-    }
+    // Vérifiez l'ID du nouvel utilisateur
+    if (!new_user) return handleErrors(res, 400, 'User id is required');
+    if (!ObjectId.isValid(new_user)) return handleErrors(res, 400, 'Invalid user id');
+    new_user = new ObjectId(new_user)
 
-    // Vérifiez si l'ID est un ObjectId valide
-    if (!ObjectId.isValid(id)) {
-        return handleErrors(res, 400, 'Invalid ObjectId');
-    }
+    // Vérifiez si le nom de la conversation est spécifié
+    if (!name) return handleErrors(res, 400, 'Conversation name is required');
+
+    // Vérifiez si les destinataires sont spécifiés
+    users = users.split(',') || [];
+    if (!users || users.length === 0) return handleErrors(res, 400, 'Users id are required');
+
+    // Vérifiez si les ID des utilisateurs sont valides
+    if (users.some(user => !ObjectId.isValid(user))) return handleErrors(res, 400, 'Invalid users id');
+    users = users.map(user => new ObjectId(user));
 
     try {
-        // Récupérez tous les messages ayant les mêmes destinataires
-        receivers = receivers.map(receiver => new ObjectId(receiver));
-        const messages = await Message.find({ receivers: { $all: receivers } });
+        // Mettre à jour tous les messages ayant les mêmes utilisateurs et le même nom
+        const messages = await Message.updateMany(
+            {
+                $or : [
+                    { sender: { $in: users } },
+                    { receivers: { $elemMatch: { $in: users } } }
+                ],
+                conversation_name: name
+            },
+            {
+                $push: { receivers: new_user }
+            }
+        );
 
-        // Mettez à jour chaque message pour inclure le nouveau destinataire
-        const promises = messages.map(async (message) => {
-            const updatedMessage = await Message.findByIdAndUpdate(message._id, { $push: { receivers: new ObjectId(receiver) } }, { new: true });
-            return updatedMessage;
-        });
-
-        // Exécutez toutes les mises à jour en parallèle
-        const updatedMessages = await Promise.all(promises);
-
-        return res.json({ message: 'Receivers added to all messages in the conversation', data: updatedMessages });
+        return res.json({ message: 'Receivers added to all messages in the conversation', data: messages });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
@@ -247,7 +254,7 @@ module.exports = {
     get_conversations,
     delete_message,
     delete_conversation,
-    add_receiver,
+    join_conversation,
     leave_conversation,
     refractor_conversation_name,
   };
