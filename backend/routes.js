@@ -26,7 +26,7 @@ router.post('/logout', authenticate, authController.logout);
 router.post('/new-message',messageController.new_message);
 router.get('/get-conversation',messageController.get_conversation);
 router.get('/get-conversations',messageController.get_conversations);
-router.delete('delete-message',messageController.delete_message);
+router.delete('/delete-message',messageController.delete_message);
 router.delete('/delete-conversation',messageController.delete_conversation);
 router.post('add-receiver',messageController.add_receiver);
 router.delete('leave-conversation',messageController.leave_conversation);

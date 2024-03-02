@@ -63,7 +63,7 @@ const get_conversation = async (req, res) => {
 
     // Vérifiez si l'utilisateur est correct
     if (!user) return handleErrors(res, 400, 'User id is required');
-    if (user && !ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
+    if (!ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
     user = new ObjectId(user);
 
     try {
@@ -77,22 +77,19 @@ const get_conversation = async (req, res) => {
 };
 
 const delete_message = async (req, res) => {
-    const { id } = req.body;
+    let { id } = req.body;
 
     // Vérifiez si l'ID est donné
-    if (!id) {
-        return handleErrors(res, 400, 'ID is required');
-    }
+    if (!id) return handleErrors(res, 400, 'Message id is required');
+    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid message id');
+    id = new ObjectId(id);
 
-
-    if (!ObjectId.isValid(id)) {
-        return handleErrors(res, 400, 'Invalid ObjectId');
-    }
+    // Vérifiez si le message existe
+    const exists = await Message.exists(id);
+    if (!exists) return handleErrors(res, 404, 'Message not found');
 
     try {
-
-        const message = await Message.deleteOne({ _id: new ObjectId(id) });
-
+        const message = await Message.deleteMany({ _id: id });
         return res.json({ message: 'Message deleted successfully', data: message });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
