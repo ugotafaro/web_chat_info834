@@ -97,24 +97,37 @@ const delete_message = async (req, res) => {
 };
 
 const delete_conversation = async (req, res) =>{
-    const { receivers } = req.body;
+    let { users, name } = req.body;
+
+    // Vérifiez si le nom de la conversation est spécifié
+    if (!name) {
+        return handleErrors(res, 400, 'Conversation name is required');
+    }
 
     // Vérifiez si les destinataires sont spécifiés
-    if (!receivers || receivers.length === 0) {
+    users = users.split(',') || [];
+    if (!users || users.length === 0) {
         return handleErrors(res, 400, 'Receivers are required');
     }
 
-    // Vérifiez si les ID des destinataires sont valides
-    if (receivers.some(receiver => !ObjectId.isValid(receiver))) {
+    // Vérifiez si les ID des utilisateurs sont valides
+    if (users.some(user => !ObjectId.isValid(user))) {
         return handleErrors(res, 400, 'Invalid receiver id');
     }
+    users = users.map(user => new ObjectId(user));
 
     try {
+        // Supprimez les messages associés aux utilisateurs spécifiés
+        const messages = await Message.deleteMany(
+            { $or : [
+                { sender: { $in: users } },
+                { receivers: { $elemMatch: { $in: users } } }
+            ], conversation_name: name
+        });
 
-        receivers = receivers.map(receiver => new ObjectId(receiver));
-
-        // Supprimez les messages associés aux destinataires spécifiés
-        const messages = await Message.deleteMany({ receivers: { $all: receivers } });
+        if (messages.deletedCount === 0) {
+            return handleErrors(res, 404, 'Conversation not found');
+        }
 
         return res.json({ message: 'Conversation deleted successfully', data: messages });
     } catch (e) {
