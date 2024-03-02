@@ -58,6 +58,24 @@ const get_conversations = async (req, res) => {
     }
 };
 
+const get_conversation = async (req, res) => {
+    let { user } = req.body;
+
+    // Vérifiez si l'utilisateur est correct
+    if (!user) return handleErrors(res, 400, 'User id is required');
+    if (user && !ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
+    user = new ObjectId(user);
+
+    try {
+        // Recherchez les messages où l'utilisateur est l'expéditeur, ou s'il est contenu dans la liste des destinataires
+        const messages = await Message.find({ $or: [{ sender: user }, { receivers: { $in: [user] } }] });
+
+        return res.json({ data: messages });
+    } catch (e) {
+        return handleErrors(res, e.code, e.message);
+    }
+};
+
 const delete_message = async (req, res) => {
     const { id } = req.body;
 
@@ -215,6 +233,7 @@ const refractor_conversation_name = async (req, res) =>{
 }
 module.exports = {
     new_message,
+    get_conversation,
     get_conversations,
     delete_message,
     delete_conversation,
