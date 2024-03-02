@@ -4,31 +4,39 @@ const { handleErrors } = require('../util.js');
 
 
 const new_message = async (req, res) => {
-    let data = req.body.message;
-    const senderId = req.body.sender;
+    let { content, sender, conversation_name, receivers } = req.body;
 
-    // Vérifiez si le message est donné
-    if (!data) return handleErrors(res, 400, 'Message is required');
+    // Vérifiez si les donnés sont correctes
+    if (!content) return handleErrors(res, 400, 'Message content is required');
+    if (!sender) return handleErrors(res, 400, 'Sender id is required');
+    if (sender && !ObjectId.isValid(sender)) return handleErrors(res, 400, 'Invalid sender id');
+    if (!conversation_name) return handleErrors(res, 400, 'Conversation name is required');
 
-    // Vérifiez si l'ID est un ObjectId valide
-    if (senderId && !ObjectId.isValid(senderId)) return handleErrors(res, 400, 'Invalid sender id');
+    // Vérifiez si les ID des destinataires sont valides
+    receivers = receivers.split(',') || [];
+    if (receivers.some(receiver => !ObjectId.isValid(receiver))) {
+        return handleErrors(res, 400, `Invalid receiver id`);
+    }
+    receivers = receivers.map(receiver => new ObjectId(receiver));
 
+    // Vérifiez si la création du message est valide
     try {
-        data.sender = new ObjectId(senderId);
-        
-        let message = await Message.create(data);
+        let message = new Message({ content, sender, conversation_name, receivers });
+        await message.validate();
+
+        message = await Message.create(message);
         return res.json({ message: 'Message created successfully', data: message });
-    } catch (e) {
-       
-        return handleErrors(res, e.code, e.message);
+    } catch (error) {
+        return handleErrors(res, 400, error.message);
     }
 };
- 
 
-const get_conversation = async (req, res) => {
+
+const get_conversations = async (req, res) => {
     let { receivers } = req.body;
 
     // Vérifiez si les destinataires sont spécifiés
+    receivers = receivers.split(',') || [];
     if (!receivers || receivers.length === 0) {
         return handleErrors(res, 400, 'Receivers are required');
     }
@@ -39,7 +47,6 @@ const get_conversation = async (req, res) => {
     }
 
     try {
-        
         receivers = receivers.map(receiver => new ObjectId(receiver));
 
         // Recherchez les messages associés aux destinataires spécifiés
@@ -59,13 +66,13 @@ const delete_message = async (req, res) => {
         return handleErrors(res, 400, 'ID is required');
     }
 
-    
+
     if (!ObjectId.isValid(id)) {
         return handleErrors(res, 400, 'Invalid ObjectId');
     }
 
     try {
-        
+
         const message = await Message.deleteOne({ _id: new ObjectId(id) });
 
         return res.json({ message: 'Message deleted successfully', data: message });
@@ -88,7 +95,7 @@ const delete_conversation = async (req, res) =>{
     }
 
     try {
-        
+
         receivers = receivers.map(receiver => new ObjectId(receiver));
 
         // Supprimez les messages associés aux destinataires spécifiés
@@ -98,11 +105,11 @@ const delete_conversation = async (req, res) =>{
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
-    
-    
+
+
 
 }
-const add_receiver = async (req, res) => {   
+const add_receiver = async (req, res) => {
     const { id, receiver } = req.body;
 
     // Vérifiez si l'ID et le destinataire sont donnés
@@ -135,7 +142,7 @@ const add_receiver = async (req, res) => {
     }
 }
 
-const leave_conversation = async (req, res) =>{ 
+const leave_conversation = async (req, res) =>{
     const { removeId, receiver } = req.body;
 
     // Vérifiez si l'ID et le destinataire sont donnés
@@ -166,8 +173,8 @@ const leave_conversation = async (req, res) =>{
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
-    
-    
+
+
 
 }
 const refractor_conversation_name = async (req, res) =>{
@@ -201,14 +208,14 @@ const refractor_conversation_name = async (req, res) =>{
         return handleErrors(res, e.code, e.message);
     }
 
-    
-    
-    
+
+
+
 
 }
 module.exports = {
     new_message,
-    get_conversation,
+    get_conversations,
     delete_message,
     delete_conversation,
     add_receiver,
