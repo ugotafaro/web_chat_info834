@@ -1,27 +1,29 @@
 const Message = require('../models/MessageModel.js');
+const Conversation = require('../models/ConversationModel.js');
 const { ObjectId } = require('mongodb');
 const { handleErrors } = require('../util.js');
 
 
 const new_message = async (req, res) => {
-    let { content, sender, conversation_name, receivers } = req.body;
+    let { content, sender, conversation } = req.body;
 
     // Vérifiez si les donnés sont correctes
     if (!content) return handleErrors(res, 400, 'Message content is required');
     if (!sender) return handleErrors(res, 400, 'Sender id is required');
-    if (sender && !ObjectId.isValid(sender)) return handleErrors(res, 400, 'Invalid sender id');
-    if (!conversation_name) return handleErrors(res, 400, 'Conversation name is required');
+    if (!ObjectId.isValid(sender)) return handleErrors(res, 400, 'Invalid sender id');
+    if (!conversation) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(conversation)) return handleErrors(res, 400, 'Invalid conversation id');
 
-    // Vérifiez si les ID des destinataires sont valides
-    receivers = receivers.split(',') || [];
-    if (receivers.some(receiver => !ObjectId.isValid(receiver))) {
-        return handleErrors(res, 400, `Invalid receiver id`);
-    }
-    receivers = receivers.map(receiver => new ObjectId(receiver));
+    sender = new ObjectId(sender);
+    conversation = new ObjectId(conversation);
+
+    // Check if conversatio exists
+    const exists = await Conversation.exists(conversation);
+    if (!exists) return handleErrors(res, 404, 'Conversation not found');
 
     // Vérifiez si la création du message est valide
     try {
-        let message = new Message({ content, sender, conversation_name, receivers });
+        let message = new Message({ content, sender, conversation });
         await message.validate();
 
         message = await Message.create(message);
@@ -30,7 +32,6 @@ const new_message = async (req, res) => {
         return handleErrors(res, 400, error.message);
     }
 };
-
 
 const get_conversations = async (req, res) => {
     let { receivers } = req.body;
