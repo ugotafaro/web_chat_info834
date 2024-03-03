@@ -186,41 +186,21 @@ const leave_conversation = async (req, res) =>{
 }
 
 const rename_conversation = async (req, res) =>{
-    let { users, name, new_name } = req.body;
+    let { id, new_name } = req.body;
 
-    // Vérifiez si le nom de la conversation est spécifié
-    if (!name) return handleErrors(res, 400, 'Old conversation name is required');
-
-    // Vérifiez si les utilisateurs sont spécifiés
-    users = users.split(',') || [];
-    if (!users || users.length === 0) return handleErrors(res, 400, 'Users id are required');
-
-    // Vérifiez si les ID des utilisateurs sont valides
-    if (users.some(user => !ObjectId.isValid(user))) return handleErrors(res, 400, 'Invalid users id');
-    users = users.map(user => new ObjectId(user));
+    // Vérifiez l'ID de la conversation
+    if (!id) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
+    id = new ObjectId(id);
 
     // Vérifiez si le nouveau nom de la conversation est spécifié
     if (!new_name) return handleErrors(res, 400, 'New conversation name is required');
 
     try {
-        const messages = await Message.updateMany(
-            {
-                $or : [
-                    { sender: { $in: users } },
-                    { receivers: { $elemMatch: { $in: users } } }
-                ],
-                conversation_name: name
-            },
-            {
-                conversation_name: new_name,
-            }
-        );
+        // Mettre à jour la conversation pour changer le nom
+        const conversation = await Conversation.updateOne({ _id: id }, { name: new_name });
 
-        // Message d'erreur si aucun message n'a été modifié
-        if (messages.modifiedCount === 0) return handleErrors(res, 404, 'Conversation not found');
-
-        // Succès ! Le nom de la conversation a été modifié pour tous les messages
-        return res.json({ message: 'Conversation name updated for all messages in the conversation', data: messages });
+        return res.json({ message: 'Conversation name updated', data: conversation });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
