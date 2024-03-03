@@ -1,8 +1,9 @@
 const Message = require('../models/MessageModel.js');
 const Conversation = require('../models/ConversationModel.js');
+const Chat = require('../models/ChatModel.js');
+const User = require('../models/UserModel.js');
 const { ObjectId } = require('mongodb');
 const { handleErrors } = require('../util.js');
-const Chat = require('../models/ChatModel.js');
 
 
 const new_message = async (req, res) => {
@@ -123,40 +124,29 @@ const delete_conversation = async (req, res) =>{
 }
 
 const join_conversation = async (req, res) => {
-    let { new_user, users, name } = req.body;
+    let { new_user, id } = req.body;
 
     // Vérifiez l'ID du nouvel utilisateur
     if (!new_user) return handleErrors(res, 400, 'User id is required');
     if (!ObjectId.isValid(new_user)) return handleErrors(res, 400, 'Invalid user id');
-    new_user = new ObjectId(new_user)
+    new_user = new ObjectId(new_user);
 
-    // Vérifiez si le nom de la conversation est spécifié
-    if (!name) return handleErrors(res, 400, 'Conversation name is required');
+    // Vérifiez l'ID de la conversation
+    if (!id) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
+    id = new ObjectId(id);
 
-    // Vérifiez si les destinataires sont spécifiés
-    users = users.split(',') || [];
-    if (!users || users.length === 0) return handleErrors(res, 400, 'Users id are required');
-
-    // Vérifiez si les ID des utilisateurs sont valides
-    if (users.some(user => !ObjectId.isValid(user))) return handleErrors(res, 400, 'Invalid users id');
-    users = users.map(user => new ObjectId(user));
+    // Vérifiez si la conversation et l'utilisateur existe
+    let exists = await Conversation.exists(id);
+    if (!exists) return handleErrors(res, 404, 'Conversation not found');
+    exists = await User.exists(new_user);
+    if (!exists) return handleErrors(res, 404, 'User not found');
 
     try {
-        // Mettre à jour tous les messages ayant les mêmes utilisateurs et le même nom
-        const messages = await Message.updateMany(
-            {
-                $or : [
-                    { sender: { $in: users } },
-                    { receivers: { $elemMatch: { $in: users } } }
-                ],
-                conversation_name: name
-            },
-            {
-                $push: { receivers: new_user }
-            }
-        );
+        // Mettre à jour la conversation pour ajouter le nouvel utilisateur
+        const conversation = await Conversation.updateOne({ _id: id }, { $push: { users: new_user } });
 
-        return res.json({ message: 'Receivers added to all messages in the conversation', data: messages });
+        return res.json({ message: 'User added to conversation', data: conversation });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
