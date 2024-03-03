@@ -17,7 +17,7 @@ const new_message = async (req, res) => {
     sender = new ObjectId(sender);
     conversation = new ObjectId(conversation);
 
-    // Check if conversatio exists
+    // Vérifiez si la conversation existe
     const exists = await Conversation.exists(conversation);
     if (!exists) return handleErrors(res, 404, 'Conversation not found');
 
@@ -60,16 +60,21 @@ const get_conversations = async (req, res) => {
 };
 
 const get_conversation = async (req, res) => {
-    let { user } = req.body;
+    let { conversation } = req.body;
 
-    // Vérifiez si l'utilisateur est correct
-    if (!user) return handleErrors(res, 400, 'User id is required');
-    if (!ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
-    user = new ObjectId(user);
+    // Vérifiez si les donnés sont correctes
+    if (!conversation) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(conversation)) return handleErrors(res, 400, 'Invalid conversation id');
+
+    conversation = new ObjectId(conversation);
+
+    // Vérifiez si la conversation existe
+    const exists = await Conversation.exists(conversation);
+    if (!exists) return handleErrors(res, 404, 'Conversation not found');
 
     try {
-        // Recherchez les messages où l'utilisateur est l'expéditeur, ou s'il est contenu dans la liste des destinataires
-        const messages = await Message.find({ $or: [{ sender: user }, { receivers: { $in: [user] } }] });
+        // Recherchez les messages associés à la conversation
+        const messages = await Message.find({ conversation });
 
         return res.json({ data: messages });
     } catch (e) {
