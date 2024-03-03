@@ -55,23 +55,22 @@ const get_conversations = async (req, res) => {
 };
 
 const get_conversation = async (req, res) => {
-    let { conversation } = req.body;
+    let { id } = req.body;
 
     // Vérifiez si les donnés sont correctes
-    if (!conversation) return handleErrors(res, 400, 'Conversation id is required');
-    if (!ObjectId.isValid(conversation)) return handleErrors(res, 400, 'Invalid conversation id');
-
-    conversation = new ObjectId(conversation);
+    if (!id) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
+    id = new ObjectId(id);
 
     // Vérifiez si la conversation existe
-    const exists = await Conversation.exists(conversation);
+    const exists = await Conversation.exists(id);
     if (!exists) return handleErrors(res, 404, 'Conversation not found');
 
     try {
         // Recherchez les messages associés à la conversation
-        const messages = await Message.find({ conversation });
+        const conversation = await Chat.find({ _id: id });
 
-        return res.json({ data: messages });
+        return res.json({ data: conversation });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
