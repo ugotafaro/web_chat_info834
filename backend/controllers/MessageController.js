@@ -97,39 +97,26 @@ const delete_message = async (req, res) => {
 };
 
 const delete_conversation = async (req, res) =>{
-    let { users, name } = req.body;
+    let { id } = req.body;
 
-    // Vérifiez si le nom de la conversation est spécifié
-    if (!name) {
-        return handleErrors(res, 400, 'Conversation name is required');
-    }
-
-    // Vérifiez si les destinataires sont spécifiés
-    users = users.split(',') || [];
-    if (!users || users.length === 0) {
-        return handleErrors(res, 400, 'Receivers are required');
-    }
-
-    // Vérifiez si les ID des utilisateurs sont valides
-    if (users.some(user => !ObjectId.isValid(user))) {
-        return handleErrors(res, 400, 'Invalid receiver id');
-    }
-    users = users.map(user => new ObjectId(user));
+    // Vérifiez si l'id de la conversation est spécifié
+    if (!id) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
+    id = new ObjectId(id);
 
     try {
-        // Supprimez les messages associés aux utilisateurs spécifiés
-        const messages = await Message.deleteMany(
-            { $or : [
-                { sender: { $in: users } },
-                { receivers: { $elemMatch: { $in: users } } }
-            ], conversation_name: name
-        });
+        // Supprimez la conversation
+        const conversation = await Conversation.deleteOne({ _id: id });
 
-        if (messages.deletedCount === 0) {
+        // Supprimez les messages associés à la conversation
+        const messages = await Message.deleteMany({ conversation: id });
+
+        let no_change = conversation.deletedCount === 0 && messages.deletedCount === 0;
+        if (no_change) {
             return handleErrors(res, 404, 'Conversation not found');
         }
 
-        return res.json({ message: 'Conversation deleted successfully', data: messages });
+        return res.json({ message: 'Conversation deleted successfully', data: { messages, conversation } });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
