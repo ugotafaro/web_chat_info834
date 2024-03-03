@@ -2,6 +2,7 @@ const Message = require('../models/MessageModel.js');
 const Conversation = require('../models/ConversationModel.js');
 const { ObjectId } = require('mongodb');
 const { handleErrors } = require('../util.js');
+const Chat = require('../models/ChatModel.js');
 
 
 const new_message = async (req, res) => {
@@ -34,26 +35,19 @@ const new_message = async (req, res) => {
 };
 
 const get_conversations = async (req, res) => {
-    let { receivers } = req.body;
+    let { user } = req.body;
 
-    // Vérifiez si les destinataires sont spécifiés
-    receivers = receivers.split(',') || [];
-    if (!receivers || receivers.length === 0) {
-        return handleErrors(res, 400, 'Receivers are required');
-    }
+    // Vérifiez si l'utilisateur sont spécifiés
+    if (!user) return handleErrors(res, 400, 'User id is required');
+    if (!ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
 
-    // Vérifiez si les ID des destinataires sont valides
-    if (receivers.some(receiver => !ObjectId.isValid(receiver))) {
-        return handleErrors(res, 400, 'Invalid receiver id');
-    }
+    user = new ObjectId(user);
 
     try {
-        receivers = receivers.map(receiver => new ObjectId(receiver));
+        // Recherchez les chats (conversations + messages + utilisateurs) associés à l'utilisateur
+        const data = await Chat.find({ users: { $elemMatch: { _id: user } }});
 
-        // Recherchez les messages associés aux destinataires spécifiés
-        const messages = await Message.find({ receivers: { $all: receivers } });
-
-        return res.json({ data: messages });
+        return res.json({ data });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
