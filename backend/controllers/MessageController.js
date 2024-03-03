@@ -233,42 +233,47 @@ const leave_conversation = async (req, res) =>{
     }
 }
 
-const refractor_conversation_name = async (req, res) =>{
-    const { receivers, newName } = req.body;
+const rename_conversation = async (req, res) =>{
+    let { users, name, new_name } = req.body;
 
-    // Vérifiez si la liste des receveurs et le nouveau nom sont donnés
-    if (!receivers || !newName) {
-        return handleErrors(res, 400, 'Receivers list and new name are required');
-    }
+    // Vérifiez si le nom de la conversation est spécifié
+    if (!name) return handleErrors(res, 400, 'Old conversation name is required');
+
+    // Vérifiez si les utilisateurs sont spécifiés
+    users = users.split(',') || [];
+    if (!users || users.length === 0) return handleErrors(res, 400, 'Users id are required');
+
+    // Vérifiez si les ID des utilisateurs sont valides
+    if (users.some(user => !ObjectId.isValid(user))) return handleErrors(res, 400, 'Invalid users id');
+    users = users.map(user => new ObjectId(user));
+
+    // Vérifiez si le nouveau nom de la conversation est spécifié
+    if (!new_name) return handleErrors(res, 400, 'New conversation name is required');
 
     try {
-        // Récupérez tous les messages ayant les mêmes destinataires
-        receivers = receivers.map(receiver => new ObjectId(receiver));
-        const messages = await Message.find({ receivers: { $all: receivers } });
+        const messages = await Message.updateMany(
+            {
+                $or : [
+                    { sender: { $in: users } },
+                    { receivers: { $elemMatch: { $in: users } } }
+                ],
+                conversation_name: name
+            },
+            {
+                conversation_name: new_name,
+            }
+        );
 
-        // Mettez à jour chaque message pour modifier le nom de la conversation
-        const promises = messages.map(async (message) => {
-            const updatedMessage = await Message.findByIdAndUpdate(
-                message._id,
-                { conversation_name: newName },
-                { new: true }
-            );
-            return updatedMessage;
-        });
+        // Message d'erreur si aucun message n'a été modifié
+        if (messages.modifiedCount === 0) return handleErrors(res, 404, 'Conversation not found');
 
-        // Exécutez toutes les mises à jour en parallèle
-        const updatedMessages = await Promise.all(promises);
-
-        return res.json({ message: 'Conversation name updated for all messages in the conversation', data: updatedMessages });
+        // Succès ! Le nom de la conversation a été modifié pour tous les messages
+        return res.json({ message: 'Conversation name updated for all messages in the conversation', data: messages });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
-
-
-
-
-
 }
+
 module.exports = {
     new_message,
     get_conversation,
@@ -277,6 +282,6 @@ module.exports = {
     delete_conversation,
     join_conversation,
     leave_conversation,
-    refractor_conversation_name,
+    rename_conversation,
   };
 
