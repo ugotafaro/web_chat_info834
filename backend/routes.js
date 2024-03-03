@@ -29,7 +29,7 @@ router.get('/get-conversations',messageController.get_conversations);
 router.delete('/delete-message',messageController.delete_message);
 router.delete('/delete-conversation',messageController.delete_conversation);
 router.put('/join-conversation',messageController.join_conversation);
-router.delete('leave-conversation',messageController.leave_conversation);
+router.delete('/leave-conversation',messageController.leave_conversation);
 router.put('refractor-conversation-name',messageController.refractor_conversation_name);
 
 module.exports = router;
