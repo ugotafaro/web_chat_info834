@@ -153,58 +153,33 @@ const join_conversation = async (req, res) => {
 }
 
 const leave_conversation = async (req, res) =>{
-    let { leaver, users, name } = req.body;
+    let { leaver, id } = req.body;
 
-    // Vérifiez l'ID de l'utilisateur sortant
-    if (!leaver) return handleErrors(res, 400, 'Leaver id is required');
-    if (!ObjectId.isValid(leaver)) return handleErrors(res, 400, 'Invalid leaver id');
-    leaver = new ObjectId(leaver)
+    // Vérifiez l'ID de l'utilisateur qui quitte
+    if (!leaver) return handleErrors(res, 400, 'User (leaver) id is required');
+    if (!ObjectId.isValid(leaver)) return handleErrors(res, 400, 'Invalid user (leaver) id');
+    leaver = new ObjectId(leaver);
 
-    // Vérifiez si le nom de la conversation est spécifié
-    if (!name) return handleErrors(res, 400, 'Conversation name is required');
+    // Vérifiez l'ID de la conversation
+    if (!id) return handleErrors(res, 400, 'Conversation id is required');
+    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
+    id = new ObjectId(id);
 
-    // Vérifiez si les destinataires sont spécifiés
-    users = users.split(',') || [];
-    if (!users || users.length === 0) return handleErrors(res, 400, 'Users id are required');
+    // Vérifiez si la conversation et l'utilisateur existe
+    let exists = await Conversation.exists(id);
+    if (!exists) return handleErrors(res, 404, 'Conversation not found');
+    exists = await User.exists(leaver);
+    if (!exists) return handleErrors(res, 404, 'User not found');
 
-    // Vérifiez si les ID des utilisateurs sont valides
-    if (users.some(user => !ObjectId.isValid(user))) return handleErrors(res, 400, 'Invalid users id');
-    users = users.map(user => new ObjectId(user));
+    // Vérifiez si l'utilisateur est dans la conversation
+    const conversation = await Conversation.findOne({ _id: id, users: { $elemMatch: { $eq: leaver } } });
+    if (!conversation) return handleErrors(res, 404, 'User not in the conversation');
 
     try {
-        // Mettre à jour tous les messages de la converastion que le quitteur a reçu
-        const messages_updated = await Message.updateMany(
-            {
-                $or : [
-                    { sender: { $in: users } },
-                    { receivers: { $elemMatch: { $in: users } } }
-                ],
-                conversation_name: name
-            },
-            {
-                $pull: { receivers: leaver },
-            }
-        );
+        // Mettre à jour la conversation pour retirer le nouvel utilisateur
+        const conversation = await Conversation.updateOne({ _id: id }, { $pull: { users: leaver } });
 
-        // Supprimez tous les messages de la conversation que le quitteur a envoyé
-        const messages_deleted = await Message.deleteMany(
-            {
-                $or : [
-                    { sender: { $in: users } },
-                    { receivers: { $elemMatch: { $in: users } } }
-                ],
-                conversation_name: name,
-                receivers: { $size: 0 }
-            }
-        );
-
-        let no_change = messages_updated.modifiedCount === 0 && messages_deleted.deletedCount === 0;
-
-        // Message d'erreur si aucun message n'a été modifié ou supprimé
-        if (no_change) return handleErrors(res, 404, 'Conversation not found or user not in the conversation');
-
-        // Succès ! L'utilisateur a été supprimé de tous les messages
-        return res.json({ message: 'User removed from the conversation', data: { messages_updated, messages_deleted } });
+        return res.json({ message: 'User removed from the conversation', data: conversation });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
     }
