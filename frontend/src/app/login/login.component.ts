@@ -3,6 +3,7 @@ import { AuthService } from '../auth.service';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ChatService } from '../chat.service';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +24,7 @@ export class LoginComponent {
     private router: Router,
     private authService: AuthService,
     private formBuilder: FormBuilder,
+    private chatService: ChatService
   ) { };
 
   attemptLogin(): void {
@@ -31,7 +33,10 @@ export class LoginComponent {
     if(!this.loginForm.valid) return;
 
     this.authService.attemptLogin(this.loginForm.value).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => {
+        this.router.navigate(['/']);
+        this.chatService.connect();
+      },
       error: () => this.customErrorMessage = "Identifiant ou mot de passe incorrect",
     });
   }

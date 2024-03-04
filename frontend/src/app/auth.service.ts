@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
+import { ChatService } from './chat.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,14 +20,12 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
-        localStorage.setItem('token', response.token);
-        this.user.next(response.token);
       })
     );
   }
 
   attemptLogout(): Observable<any>  {
-    const token = localStorage.getItem('token');
+    const token = JSON.parse(localStorage.getItem('user') || '{}').token;
 
     if (!token) return new Observable();
 

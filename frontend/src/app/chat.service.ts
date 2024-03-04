@@ -12,10 +12,23 @@ export class ChatService {
 
   constructor(wsService: WebsocketService) {
     this.wsService = wsService;
+    this.messages = new Subject<Message>();
+  }
+
+  close() {
+    this.messages.complete();
+    this.wsService.close();
+  }
+
+  connect() {
+    // Reopen the connection
+    this.wsService = new WebsocketService();
+
+    // Connect to the server
+    let ws: Subject<any> = this.wsService.connect(CHAT_URL);
+
     // Create a new observable that will be used to send messages to the server
     this.messages = new Subject<Message>();
-    // Connect to the server
-    let ws: Subject<any> = wsService.connect(CHAT_URL);
 
     // Handle message reception
     ws.pipe(
@@ -33,10 +46,5 @@ export class ChatService {
     this.messages.subscribe((message: Message) => {
       ws.next(message);
     });
-  }
-
-  close() {
-    this.messages.complete();
-    this.wsService.close();
   }
 }
