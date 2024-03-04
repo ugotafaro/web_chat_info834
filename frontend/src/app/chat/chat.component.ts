@@ -25,13 +25,13 @@ export class ChatComponent implements AfterViewChecked {
   constructor() { }
 
   ngOnInit() {
-    this.listMessages = [
-      new Message(1, 'Hello', new Date().getHours(), true, 1),
-      new Message(2, 'Hi', new Date().getHours(), false, 2),
-      new Message(3, 'How are you?', new Date().getHours(), true, 1),
-      new Message(4, 'I am fine', new Date().getHours(), false, 2),
-    ];
-    // this.listMessages = [];
+    // this.listMessages = [
+    //   new Message(1, 'Hello', new Date().getHours(), true, 1),
+    //   new Message(2, 'Hi', new Date().getHours(), false, 2),
+    //   new Message(3, 'How are you?', new Date().getHours(), true, 1),
+    //   new Message(4, 'I am fine', new Date().getHours(), false, 2),
+    // ];
+    this.listMessages = [];
   }
 
   addMessage(message: string) {
