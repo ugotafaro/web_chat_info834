@@ -89,10 +89,7 @@ export class ChatComponent implements AfterViewChecked {
 
   logout() {
     this.authService.attemptLogout().subscribe({
-      next: () => {
-        this.chatService.close();
-        this.router.navigate(['/login']);
-      },
+      next: () => this.router.navigate(['/login']),
       error: (error) => console.error(error),
     });
   }

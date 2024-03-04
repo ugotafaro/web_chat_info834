@@ -11,7 +11,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api';
   private user: BehaviorSubject<User | null>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private chatService: ChatService) {
     this.user = new BehaviorSubject<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   }
 
@@ -20,6 +20,7 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
+        this.chatService.connect();
       })
     );
   }
@@ -38,6 +39,9 @@ export class AuthService {
     // because it is better for user experience
     localStorage.removeItem('user');
     this.user.next(null);
+
+    // We close the chatService before sending the request
+    this.chatService.close();
 
     return this.http.post<any>(`${this.apiUrl}/logout`, {}, { headers });
   }
