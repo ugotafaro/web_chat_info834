@@ -1,11 +1,11 @@
 export class Message {
     id: number ;
     content: string;
-    timestamp: number;
+    timestamp: string;
     isUserMessage: boolean;
     userIdSender: number;
 
-    constructor(id: number, content: string, timestamp: number, isUserMessage: boolean, userIdSender: number) {
+    constructor(id: number, content: string, timestamp: string, isUserMessage: boolean, userIdSender: number) {
         this.id = id;
         this.content = content;
         this.timestamp = timestamp;

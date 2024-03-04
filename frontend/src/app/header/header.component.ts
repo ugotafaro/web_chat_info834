@@ -16,16 +16,11 @@ export class HeaderComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.authService.getAuthToken().subscribe((authToken: string | null) => {
-      this.isAuth = !!authToken;
-    });
   }
 
   logout() {
     this.authService.attemptLogout().subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
+      next: () => this.router.navigate(['/']),
       error: (error) => console.error(error),
     });
   }

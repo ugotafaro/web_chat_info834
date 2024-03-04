@@ -31,10 +31,8 @@ export class LoginComponent {
     if(!this.loginForm.valid) return;
 
     this.authService.attemptLogin(this.loginForm.value).subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
-      error: (error) => this.customErrorMessage = "Identifiant ou mot de passe incorrect",
+      next: () => this.router.navigate(['/']),
+      error: () => this.customErrorMessage = "Identifiant ou mot de passe incorrect",
     });
   }
 
