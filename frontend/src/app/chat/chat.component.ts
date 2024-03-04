@@ -20,6 +20,8 @@ export class ChatComponent implements AfterViewChecked {
   });
   showEmojiPicker = false;
   set = 'apple';
+
+  isSelect = false;
   constructor() { }
 
   ngOnInit() {
@@ -29,10 +31,11 @@ export class ChatComponent implements AfterViewChecked {
       new Message(3, 'How are you?', new Date().getHours(), true, 1),
       new Message(4, 'I am fine', new Date().getHours(), false, 2),
     ];
+    // this.listMessages = [];
   }
 
   addMessage(message: string) {
-    this.listMessages.push(new Message(this.listMessages.length + 1, message, new Date().getHours(), true, 1));
+    this.listMessages.unshift(new Message(this.listMessages.length + 1, message, new Date().getHours(), true, 1));
   }
 
   toggleEmojiPicker() {
@@ -53,6 +56,10 @@ export class ChatComponent implements AfterViewChecked {
   }
   onBlur() {
     console.log('onblur');
+  }
+
+  selectConversation(){
+    this.isSelect = !this.isSelect;
   }
 
 
