@@ -1,50 +1,44 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
+import { User } from '../user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api';
-  private authTokenSubject: BehaviorSubject<string | null>;
-  private userId: BehaviorSubject<string | null>;
+  private user: BehaviorSubject<User | null>;
 
   constructor(private http: HttpClient) {
-    this.authTokenSubject = new BehaviorSubject<string | null>(localStorage.getItem('authToken'));
-    this.userId = new BehaviorSubject<string | null>(localStorage.getItem('userId'));
+    this.user = new BehaviorSubject<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   }
 
   attemptLogin(loginInfo: Object): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, loginInfo).pipe(
       map(response => {
-        const authToken = response.token;
-        const userId = response.user;
-
-        if (authToken) {
-          localStorage.setItem('authToken', authToken);
-          localStorage.setItem('userId', userId);
-          this.authTokenSubject.next(authToken);
-          this.userId.next(userId);
-        }
+        localStorage.setItem('user', JSON.stringify(response.user));
+        this.user.next(response.user);
+        localStorage.setItem('token', response.token);
+        this.user.next(response.token);
       })
     );
   }
 
   attemptLogout(): Observable<any>  {
-    const authToken = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
 
-    if (!authToken) return new Observable();
+    if (!token) return new Observable();
 
     const headers = new HttpHeaders({
         'Content-Type': 'application/json',
-        'Authorization': `${authToken}`
+        'Authorization': token,
     });
 
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userId');
-    this.authTokenSubject.next(null);
-    this.userId.next(null);
+    // We remove items from localStorage BEFORE waiting for the request
+    // because it is better for user experience
+    localStorage.removeItem('user');
+    this.user.next(null);
 
     return this.http.post<any>(`${this.apiUrl}/logout`, {}, { headers });
   }
@@ -52,24 +46,21 @@ export class AuthService {
   attemptSignup(signupInfo: Object): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/signup`, signupInfo).pipe(
       map(response => {
-        const authToken = response.token;
-        const userId = response.user;
-
-        if (authToken) {
-          localStorage.setItem('authToken', authToken);
-          localStorage.setItem('userId', userId);
-          this.authTokenSubject.next(authToken);
-          this.userId.next(userId);
-        }
+        localStorage.setItem('user', response.user);
+        this.user.next(response.user);
       })
-    );;
+    );
   }
 
-  getAuthToken(): Observable<string | null> {
-    return this.authTokenSubject;
+  getUser$(): Observable<User | null> {
+    return this.user.asObservable();
   }
 
-  getUserId(): Observable<string | null> {
-    return this.userId.asObservable();
+  isAuthenticated$(): Observable<boolean> {
+    return this.user.pipe(map(user => user !== null));
+  }
+
+  isAuthenticated(): boolean {
+    return this.user.getValue() !== null;
   }
 }
