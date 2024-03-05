@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Subject, map } from "rxjs";
 import { WebsocketService } from "./socket.service";
 import { Message } from "../message";
+import { User } from "../user";
 
 const CHAT_URL = "ws://localhost:3030";
 
@@ -20,12 +21,12 @@ export class ChatService {
     this.wsService.close();
   }
 
-  connect() {
+  connect(user: User) {
     // Reopen the connection
     this.wsService = new WebsocketService();
 
     // Connect to the server
-    let ws: Subject<any> = this.wsService.connect(CHAT_URL);
+    let ws: Subject<any> = this.wsService.connect(CHAT_URL, user.id);
 
     // Create a new observable that will be used to send messages to the server
     this.messages = new Subject<Message>();

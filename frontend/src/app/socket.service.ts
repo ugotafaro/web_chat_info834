@@ -8,15 +8,15 @@ export class WebsocketService {
   private subject!: Subject<MessageEvent>;
   private ws!: WebSocket;
 
-  public connect(url: string | URL): Subject<MessageEvent> {
+  public connect(url: string | URL, user: string): Subject<MessageEvent> {
     if (!this.subject) {
-      this.subject = this.create(url);
+      this.subject = this.create(url, user);
       console.log("[WS] Connected to " + url);
     }
     return this.subject;
   }
 
-  private create(url: string | URL): Subject<MessageEvent> {
+  private create(url: string | URL, user: string): Subject<MessageEvent> {
     this.ws = new WebSocket(url);
 
     let observable = Observable.create((obs: Observer<MessageEvent>) => {
@@ -29,7 +29,7 @@ export class WebsocketService {
     let observer = {
       next: (data: Object) => {
         if (this.ws.readyState === WebSocket.OPEN) {
-          this.ws.send(JSON.stringify(data));
+          this.ws.send(JSON.stringify({...data, user}));
         } else {
           console.log("[WS] Not connected to " + url);
         }
