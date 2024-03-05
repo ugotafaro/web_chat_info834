@@ -25,6 +25,7 @@ const new_message = async (data) => {
 
     // Vérifiez si la création du message est valide
     try {
+
         let message = new Message({ content, sender, conversation });
         await message.validate();
         return await Message.create(message);
