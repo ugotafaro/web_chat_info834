@@ -20,7 +20,7 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
-        this.chatService.connect();
+        this.chatService.connect(response.user);
       })
     );
   }
@@ -65,5 +65,9 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.user.getValue() !== null;
+  }
+
+  getUser(): User | null {
+    return this.user.getValue();
   }
 }
