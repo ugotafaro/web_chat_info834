@@ -56,8 +56,10 @@ class ChatWS extends  WS.WebSocketServer {
         // Main logic for message handling
         try {
             let data = JSON.parse(message);
-            const { content, sender, conversation } = data;
+            const { content, conversation, user: sender } = data;
+
             console.log('Message:', data);
+
             // Create message using controller
             const createdMessage = await messageController.new_message(content, sender, conversation);
             console.log('Message created:', createdMessage);
@@ -75,7 +77,7 @@ class ChatWS extends  WS.WebSocketServer {
         // });
     }
 
-    onClose(ws) {
+    onClose() {
         console.log('[WS] Connexion fermée');
         console.log(`[WS] ${this.clients.size} clients`);
     }
