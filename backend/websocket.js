@@ -1,4 +1,5 @@
 const ws = require('ws');
+const messageController = require('./controllers/MessageController');
 
 class ChatWS extends  ws.WebSocketServer {
     constructor(options) {
@@ -24,7 +25,7 @@ class ChatWS extends  ws.WebSocketServer {
         ws.on('close', this.onClose.bind(this, ws));
     }
 
-    onMessage(ws, message) {
+    async onMessage(ws, message) {
         let data = JSON.parse(message);
         // console.log(`[WS] Receiving \"${data['content']}\"`);
 
@@ -51,6 +52,18 @@ class ChatWS extends  ws.WebSocketServer {
             let saint = divineSaints[Math.floor(Math.random() * divineSaints.length)];
             ws.send(JSON.stringify({ content: `✝🙏 Saint-${saint} 🙏✝` }));
             return;
+        }
+
+        // Main logic for message handling
+        try {
+            let data = JSON.parse(message);
+            const { content, sender, conversation } = data;
+            console.log('Message:', data);
+            // Create message using controller
+            const createdMessage = await messageController.new_message(content, sender, conversation);
+            console.log('Message created:', createdMessage);
+        } catch (error) {
+            console.error('Error creating message:', error.message);
         }
 
         // TODO : Broadcast

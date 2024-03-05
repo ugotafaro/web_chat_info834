@@ -9,6 +9,16 @@ const messageController = require('./controllers/MessageController');
 // Middleware
 const auth_guard = require('./middlewares/authentificate');
 
+const new_message = async (req, res) => {
+    try {
+      const { content, sender, conversation } = req.body;
+      const createdMessage = await messageController.new_message(content, sender, conversation);
+      return res.json({ message: 'Message created successfully', data: createdMessage });
+    } catch (error) {
+      return handleErrors(res, 400, error.message);
+    }
+};
+
 // Routes
 
 // Users
@@ -18,7 +28,7 @@ router.post('/logout', auth_guard, authController.logout);
 router.post('/user/:id', auth_guard, userController.get);
 
 // Messages
-router.post('/new-message',messageController.new_message);
+router.post('/new-message', new_message);
 router.delete('/delete-message',messageController.delete_message);
 
 // Conversations
