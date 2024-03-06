@@ -38,6 +38,7 @@ export class ChatComponent implements AfterViewChecked {
   ngOnInit() {
   
     this.listMessages = [];
+    this.getUserConversation();
   }
 
   addMessage(message: string) {
@@ -80,6 +81,14 @@ export class ChatComponent implements AfterViewChecked {
     try {
       this.chatSection.nativeElement.scrollTop = this.chatSection.nativeElement.scrollHeight;
     } catch(err) { }
+  }
+
+  getUserConversation() {
+    return this.authService.get_conservations().subscribe(
+      data => {
+        console.log(data);
+      }
+    );
   }
 
   logout() {
