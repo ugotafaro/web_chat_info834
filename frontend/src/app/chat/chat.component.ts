@@ -31,17 +31,12 @@ export class ChatComponent implements AfterViewChecked {
 
   constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router) {
     chatService.messages.subscribe(msg => {
-      this.listMessages.push(msg);
+      this.listMessages.unshift(msg);
     });
   }
 
   ngOnInit() {
-    // this.listMessages = [
-    //   new Message(1, 'Hello', new Date().getHours(), true, 1),
-    //   new Message(2, 'Hi', new Date().getHours(), false, 2),
-    //   new Message(3, 'How are you?', new Date().getHours(), true, 1),
-    //   new Message(4, 'I am fine', new Date().getHours(), false, 2),
-    // ];
+  
     this.listMessages = [];
   }
 
