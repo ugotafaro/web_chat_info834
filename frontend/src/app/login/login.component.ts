@@ -22,7 +22,7 @@ export class LoginComponent {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private formBuilder: FormBuilder,
+    private formBuilder: FormBuilder
   ) { };
 
   attemptLogin(): void {

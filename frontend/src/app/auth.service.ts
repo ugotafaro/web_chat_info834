@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
+import { ChatService } from './chat.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class AuthService {
   private apiUrl = 'http://localhost:3000/api';
   private user: BehaviorSubject<User | null>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private chatService: ChatService) {
     this.user = new BehaviorSubject<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   }
 
@@ -19,14 +20,13 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
-        localStorage.setItem('token', response.token);
-        this.user.next(response.token);
+        this.chatService.connect();
       })
     );
   }
 
   attemptLogout(): Observable<any>  {
-    const token = localStorage.getItem('token');
+    const token = JSON.parse(localStorage.getItem('user') || '{}').token;
 
     if (!token) return new Observable();
 
@@ -39,6 +39,9 @@ export class AuthService {
     // because it is better for user experience
     localStorage.removeItem('user');
     this.user.next(null);
+
+    // We close the chatService before sending the request
+    this.chatService.close();
 
     return this.http.post<any>(`${this.apiUrl}/logout`, {}, { headers });
   }

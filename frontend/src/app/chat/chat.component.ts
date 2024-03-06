@@ -28,6 +28,7 @@ export class ChatComponent implements AfterViewChecked {
   showEmojiPicker = false;
   set = 'apple';
 
+
   constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router) {
     chatService.messages.subscribe(msg => {
       this.listMessages.push(msg);
@@ -47,6 +48,7 @@ export class ChatComponent implements AfterViewChecked {
   addMessage(message: string) {
     let msgObject = new Message(this.listMessages.length + 1, message, new Date().toISOString(), true, 1);
     this.chatService.messages.next(msgObject);
+
   }
 
   toggleEmojiPicker() {
@@ -68,6 +70,7 @@ export class ChatComponent implements AfterViewChecked {
     console.log('onblur');
   }
 
+
   onSubmit() {
     const message = this.messageForm.get('message')!.value || null;
     this.addMessage(message!);
@@ -86,10 +89,7 @@ export class ChatComponent implements AfterViewChecked {
 
   logout() {
     this.authService.attemptLogout().subscribe({
-      next: () => {
-        this.chatService.close();
-        this.router.navigate(['/login']);
-      },
+      next: () => this.router.navigate(['/login']),
       error: (error) => console.error(error),
     });
   }
