@@ -55,7 +55,7 @@ const get_conversations = async (req, res) => {
 };
 
 const get_conversation = async (req, res) => {
-    let { id } = req.body;
+    let id = req.query.id;
 
     // Vérifiez si les donnés sont correctes
     if (!id) return handleErrors(res, 400, 'Conversation id is required');
