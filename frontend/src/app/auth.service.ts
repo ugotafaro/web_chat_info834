@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
 import { ChatService } from './chat.service';
@@ -70,4 +70,15 @@ export class AuthService {
   getUser(): User | null {
     return this.user.getValue();
   }
+
+  get_conservations(): Observable<any> {
+    if (!this.isAuthenticated()) return new Observable();
+    // const options = {
+      
+    //   params: new HttpParams().set('user', this.getUser()!.id)
+    // };
+    return this.http.get<any>(`${this.apiUrl}/get-conversations/${this.getUser()!.id}`);
+  }
+
+
 }
