@@ -1,7 +1,7 @@
-const ws = require('ws');
+const WS = require('ws');
 const messageController = require('./controllers/MessageController');
 
-class ChatWS extends  ws.WebSocketServer {
+class ChatWS extends  WS.WebSocketServer {
     constructor(options) {
         super(options);
         this.on('connection', this.onConnection.bind(this));
@@ -14,11 +14,7 @@ class ChatWS extends  ws.WebSocketServer {
     }
 
     onConnection(ws) {
-        console.log('[WS] Nouvelle connexion');1
-
-        // Send hello to client
-        let message = JSON.stringify({ content: 'Hello from server' });
-        ws.send(message);
+        console.log('[WS] Nouvelle connexion');
 
         // Binding
         ws.on('message', this.onMessage.bind(this, ws));
@@ -26,10 +22,39 @@ class ChatWS extends  ws.WebSocketServer {
     }
 
     async onMessage(ws, message) {
-        let data = JSON.parse(message);
-        const { content, conversation, sender } = data;
+        const { action, data } = JSON.parse(message);
 
-        console.log('Message:', data);
+        console.log("Action:", action)
+        switch (action) {
+            case 'set-user':
+                let { user } = data;
+                this.onSetUser(ws, user);
+                break;
+
+            case 'new-message':
+                let { content, conversation, sender } = data;
+                this.onNewMessage(ws, content, conversation, sender);
+                break;
+            default:
+                return;
+        }
+    }
+
+    onClose() {
+        console.log('[WS] Connexion fermée');
+        console.log(`[WS] ${this.clients.size} clients`);
+    }
+
+    onError(error) {
+        console.error('[WS] Erreur ', error);
+    }
+
+    onSetUser(ws, user) {
+        ws.user = user;
+    }
+
+    async onNewMessage(ws, content, conversation, sender) {
+        console.log(ws.user);
 
         // Main logic for message handling
         try {
@@ -68,20 +93,11 @@ class ChatWS extends  ws.WebSocketServer {
         // TODO : Broadcast
         // Display clients size
         console.log(`[WS] ${this.clients.size} clients`);
-        // this.clients.forEach((client) => {
-        //     if (client !== ws && client.readyState === ws.OPEN) {
-        //         client.send(message);
-        //     }
-        // });
-    }
-
-    onClose() {
-        console.log('[WS] Connexion fermée');
-        console.log(`[WS] ${this.clients.size} clients`);
-    }
-
-    onError(error) {
-        console.error('[WS] Erreur ', error);
+        this.clients.forEach((client) => {
+            if (client !== ws && client.readyState === ws.OPEN) {
+                if(client.userid in myfriends) client.send(message);
+            }
+        });
     }
 }
 
