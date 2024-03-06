@@ -137,7 +137,7 @@
                     <p class="ml-2 text-gray-600">En ligne il y a 10 min</p>
                 </div>
             </div>
-            <a (click)="logout()" *ngIf="isAuth | async" class="flex items-center lg:order-2">
+            <a (click)="logout()" *ngIf="isAuth | async" class="flex ml-auto items-center lg:order-2">
                 <button type="button"  class="flex items-center text-white bg-purple-700 hover:bg-purple-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" >
                   <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
                     <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
@@ -210,9 +210,7 @@
                     </button>
                 </div>
             </form>
-        </div>
-        
-        <emoji-mart
+            <emoji-mart
         class="emoji-mart position-absolute top-0 left-0"
         set='apple'
         *ngIf="showEmojiPicker"
@@ -221,6 +219,9 @@
         [darkMode]="false"
         >                   
         </emoji-mart>
+        </div>
+        
+        
     </div>
 
     
