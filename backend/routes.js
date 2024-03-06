@@ -26,6 +26,7 @@ router.post('/login', authController.login);
 router.post('/signup', authController.signup);
 router.post('/logout', auth_guard, authController.logout);
 router.post('/user/:id', auth_guard, userController.get);
+router.get('/search-user', userController.search_user);
 
 // Messages
 router.post('/new-message', new_message);
