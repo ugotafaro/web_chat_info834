@@ -1,5 +1,6 @@
 const WS = require('ws');
 const messageController = require('./controllers/MessageController');
+const { client } = require('./redis.js');
 
 class ChatWS extends  WS.WebSocketServer {
     constructor(options) {
@@ -14,7 +15,7 @@ class ChatWS extends  WS.WebSocketServer {
     }
 
     onConnection(ws) {
-        console.log('[WS] Nouvelle connexion');
+        console.log(`[WS] Connexion ouverte (${this.clients.size} clients)`);
 
         // Binding
         ws.on('message', this.onMessage.bind(this, ws));
@@ -24,16 +25,21 @@ class ChatWS extends  WS.WebSocketServer {
     async onMessage(ws, message) {
         const { action, data } = JSON.parse(message);
 
-        console.log("Action:", action)
-        switch (action) {
-            case 'set-user':
-                let { user } = data;
-                this.onSetUser(ws, user);
-                break;
+        // Unique case where ws.user is not required
+        if (action === 'set-user') {
+            let { user } = data;
+            this.onSetUser(ws, user);
+            return;
+        }
 
+        // Check if ws.user is set
+        if(!ws.user) return;
+
+        // Act
+        switch (action) {
             case 'new-message':
-                let { content, conversation, sender } = data;
-                this.onNewMessage(ws, content, conversation, sender);
+                let { content, conversation } = data;
+                this.onNewMessage(ws, content, conversation);
                 break;
             default:
                 return;
@@ -41,25 +47,28 @@ class ChatWS extends  WS.WebSocketServer {
     }
 
     onClose() {
-        console.log('[WS] Connexion fermée');
-        console.log(`[WS] ${this.clients.size} clients`);
+        console.log(`[WS] Connexion fermée (${this.clients.size} clients)`);
     }
 
     onError(error) {
         console.error('[WS] Erreur ', error);
     }
 
-    onSetUser(ws, user) {
+    async onSetUser(ws, user) {
+        if (!user) return;
+
+        // Check if user is connected in Redis
+        let exists = await client.exists(`user:${user}`);
+        if (exists === 0) return;
         ws.user = user;
+        console.log(`[WS] ${user} connecté`);
     }
 
-    async onNewMessage(ws, content, conversation, sender) {
-        console.log(ws.user);
-
+    async onNewMessage(ws, content, conversation) {
         // Main logic for message handling
         try {
             // Create message using controller
-            const createdMessage = await messageController.new_message(content, sender, conversation);
+            const createdMessage = await messageController.new_message(content, ws.user, conversation);
             console.log('Message created:', createdMessage);
 
             // Check if message is a ping
@@ -86,18 +95,18 @@ class ChatWS extends  WS.WebSocketServer {
                 ws.send(JSON.stringify({ content: `✝🙏 Saint-${saint} 🙏✝` }));
                 return;
             }
+
+            // TODO : Broadcast
+            // Display clients size
+            console.log(`[WS] ${this.clients.size} clients`);
+            // this.clients.forEach((client) => {
+            //     if (client !== ws && client.readyState === ws.OPEN) {
+            //         if(client.userid in myfriends) client.send(message);
+            //     }
+            // });
         } catch (error) {
             console.error('Error creating message:', error.message);
         }
-
-        // TODO : Broadcast
-        // Display clients size
-        console.log(`[WS] ${this.clients.size} clients`);
-        this.clients.forEach((client) => {
-            if (client !== ws && client.readyState === ws.OPEN) {
-                if(client.userid in myfriends) client.send(message);
-            }
-        });
     }
 }
 
