@@ -77,11 +77,8 @@ export class AuthService {
       
     //   params: new HttpParams().set('user', this.getUser()!.id)
     // };
-    return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`);
+    return this.http.get<any>(`${this.apiUrl}/get-conversations/${this.getUser()!.id}`);
   }
 
-  getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user/${id}`);
-  }
 
 }
