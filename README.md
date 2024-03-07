@@ -25,6 +25,7 @@ Pensez à vous connectez au VPN pour avoir accès à la base Mongos
 Commandes pour tester redis, à lancer sur le client Redis
 `FLUSHDB` pour vider les données
 `KEYS *` pour voir toutes les données
+`HGET user:65ddc1ac007f09cc725ad3a6 token` pour récupérer le token d'un user
 
 # MongoDB
 Commandes pour tester MongoDB, à lancer sur le client MongoDB
