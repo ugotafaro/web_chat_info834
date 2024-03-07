@@ -25,7 +25,6 @@ const new_message = async (content, sender, conversation) => {
     try {
         let message = new Message({ content, sender, conversation });
         await message.validate();
-        message = await Message.create(message);
         return await Message.create(message);
     } catch (error) {
         throw new Error(error.message);
@@ -33,22 +32,17 @@ const new_message = async (content, sender, conversation) => {
 
 };
 
-const get_conversations = async (req, res) => {
-    let user = req.query.user;
-
+const get_conversations = async (user) => {
     // Vérifiez si l'utilisateur sont spécifiés
-    if (!user) return handleErrors(res, 400, 'User id is required');
-    if (!ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
-
+    if (!user) throw new Error('User id is required');
+    if (!ObjectId.isValid(user)) throw new Error('Invalid user id');
     user = new ObjectId(user);
 
     try {
         // Recherchez les chats (conversations + messages + utilisateurs) associés à l'utilisateur
-        const data = await Chat.find({ users: { $elemMatch: { _id: user } }});
-
-        return res.json({ data });
+        return await Chat.find({ users: { $elemMatch: { _id: user } }});
     } catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 };
 

@@ -2,7 +2,6 @@ const WS = require('ws');
 const messageController = require('./controllers/MessageController');
 const { client } = require('./redis.js');
 const Conversation = require('./models/ConversationModel.js');
-const { ObjectId } = require('mongodb');
 
 class ChatWS extends  WS.WebSocketServer {
     constructor(options) {
@@ -65,37 +64,35 @@ class ChatWS extends  WS.WebSocketServer {
     async onSetUser(ws, user) {
         // Vérifier les données
         if (!user) {
-            ws.send(JSON.stringify({ error: 'User is required' }));
-            return;
+            return ws.send(JSON.stringify({ error: 'User is required' }));
         }
 
-        // Vérifier si l'utilisateur est connecté sur Redis
-        let exists = await client.exists(`user:${user}`);
-        if (exists === 0) {
-            ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
-            return;
-        }
+        // // Vérifier si l'utilisateur est connecté sur Redis
+        // let exists = await client.exists(`user:${user}`);
+        // if (exists === 0) {
+        //     return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+        // }
 
         // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
         for (let client of this.clients) {
             if (client.user !== user) continue;
-            ws.send(JSON.stringify({ error: 'User already has a websocket connection' }));
-            return;
+            return ws.send(JSON.stringify({ error: 'User already has a websocket connection' }));
         }
 
+        // Succès !
         ws.user = user;
         console.log(`[WS] User ${ws.user.substring(0, 4)}... connecté`);
+
+        // Récupérer et envoyer les conversations de l'utilisateur
+        try {
+            let conversations = await messageController.get_conversations(user);
+            return ws.send(JSON.stringify({ action: 'get-conversations', data: { conversations } }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
     }
 
     async onNewMessage(ws, content, conversation) {
-        // Vérifier les données
-        if(!content || !conversation) {
-            return ws.send(JSON.stringify({ error: 'Content and conversation are required' }))
-        };
-        if(!ObjectId.isValid(conversation)) {
-            return ws.send(JSON.stringify({ error: 'Invalid conversation ID' }));
-        }
-
         // Créer le message et broadcaster
         try {
             // Créer le message avec le controller
@@ -133,7 +130,7 @@ class ChatWS extends  WS.WebSocketServer {
                 return ws.send(JSON.stringify({ action: 'new-special-message', content: `✝🙏 Saint-${saint} 🙏✝` }));
             }
         } catch (error) {
-            return ws.send(JSON.stringify({ error: 'Server error' }));
+            return ws.send(JSON.stringify({ error: error.message }));
         }
     }
 }
