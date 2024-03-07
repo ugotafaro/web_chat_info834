@@ -1,6 +1,8 @@
 const WS = require('ws');
 const messageController = require('./controllers/MessageController');
 const { client } = require('./redis.js');
+const Conversation = require('./models/ConversationModel.js');
+const { ObjectId } = require('mongodb');
 
 class ChatWS extends  WS.WebSocketServer {
     constructor(options) {
@@ -22,20 +24,34 @@ class ChatWS extends  WS.WebSocketServer {
         ws.on('close', this.onClose.bind(this, ws));
     }
 
+    onClose() {
+        console.log(`[WS] Connexion fermée (${this.clients.size} clients)`);
+    }
+
+    onError(error) {
+        console.error('[WS] Erreur ', error);
+    }
+
     async onMessage(ws, message) {
         const { action, data } = JSON.parse(message);
 
-        // Unique case where ws.user is not required
+        // Authentification : cas unique où l'utilisateur n'a pas besoin d'être loggé
         if (action === 'set-user') {
             let { user } = data;
             this.onSetUser(ws, user);
             return;
         }
 
-        // Check if ws.user is set
-        if(!ws.user) return;
+        // Vérifier si l'utilisateur est loggé au websocket
+        if(!ws.user) {
+            return ws.send(JSON.stringify({ error: 'You must be logged in to perform actions, please send the user id via the \'set-user\' action'}));
+        }
 
-        // Act
+        // Vérifier les données
+        if (!action) return ws.send(JSON.stringify({ error: 'Action is required' }));
+        if (!data) return ws.send(JSON.stringify({ error: 'Data is required' }));
+
+        // Act !
         switch (action) {
             case 'new-message':
                 let { content, conversation } = data;
@@ -46,66 +62,78 @@ class ChatWS extends  WS.WebSocketServer {
         }
     }
 
-    onClose() {
-        console.log(`[WS] Connexion fermée (${this.clients.size} clients)`);
-    }
-
-    onError(error) {
-        console.error('[WS] Erreur ', error);
-    }
-
     async onSetUser(ws, user) {
-        if (!user) return;
+        // Vérifier les données
+        if (!user) {
+            ws.send(JSON.stringify({ error: 'User is required' }));
+            return;
+        }
 
-        // Check if user is connected in Redis
+        // Vérifier si l'utilisateur est connecté sur Redis
         let exists = await client.exists(`user:${user}`);
-        if (exists === 0) return;
+        if (exists === 0) {
+            ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+            return;
+        }
+
+        // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
+        for (let client of this.clients) {
+            if (client.user !== user) continue;
+            ws.send(JSON.stringify({ error: 'User already has a websocket connection' }));
+            return;
+        }
+
         ws.user = user;
-        console.log(`[WS] ${user} connecté`);
+        console.log(`[WS] User ${ws.user.substring(0, 4)}... connecté`);
     }
 
     async onNewMessage(ws, content, conversation) {
-        // Main logic for message handling
+        // Vérifier les données
+        if(!content || !conversation) {
+            return ws.send(JSON.stringify({ error: 'Content and conversation are required' }))
+        };
+        if(!ObjectId.isValid(conversation)) {
+            return ws.send(JSON.stringify({ error: 'Invalid conversation ID' }));
+        }
+
+        // Créer le message et broadcaster
         try {
-            // Create message using controller
+            // Créer le message avec le controller
             const createdMessage = await messageController.new_message(content, ws.user, conversation);
-            console.log('Message created:', createdMessage);
 
-            // Check if message is a ping
+            // Récupérer l'ID des autres utilisateurs dans la conversation
+            let others = await Conversation.findById(conversation, 'users');
+            others = others.users.map((user) => user.toString()).filter((user) => user !== ws.user);
+
+            // Broadcast le message aux autres utilisateurs
+            this.clients.forEach((client) => {
+                let shouldSend = client.readyState === ws.OPEN && others.includes(client.user);
+                if (shouldSend) {
+                    client.send(JSON.stringify({ action: 'new-message', data: createdMessage }));
+                }
+            });
+
+            // Check si le message contient des mots spéciaux
             if (content === 'ping') {
-                ws.send(JSON.stringify({ content: 'pong' }));
-                return;
+                return ws.send(JSON.stringify({ action: 'new-special-message', content: 'pong' }));
             }
 
+            // Check si le message finit par 'quoi'
             let quoiWords = ['quoi', 'quoi?', 'quoi ?', 'quoi !', 'quoi !?', 'quoi ! ?']
-
-            // Check if message ends in 'quoi'
             if (quoiWords.some((word) => content.endsWith(word))) {
-                ws.send(JSON.stringify({ content: 'feur' }));
-                return;
+                return ws.send(JSON.stringify({ content: 'feur' }));
             }
 
+            // Check si le message finit par un mot divin 🙏 Amen
             let divineWords = ['st', 'saint', 'sein', 'sin', 'sain', 'saints']
             let divineSaints = ['tropez','glé','tre','crusté','doux','jecter','carné','cope','port-export','refait','toxiqué','con-pétant','gurgite','primante','razin', 'plomb-95', 'pagnan', 'pathoche', 'ture', 'secte', 'clinaison', 'fusion']
-
-            // Check if message ends with 'saint'
             if (divineWords.some((word) => content.endsWith(word))) {
-                // Get random divine saint
+                // Récupérer un saint aléatoire
                 let saint = divineSaints[Math.floor(Math.random() * divineSaints.length)];
-                ws.send(JSON.stringify({ content: `✝🙏 Saint-${saint} 🙏✝` }));
-                return;
+                return ws.send(JSON.stringify({ action: 'new-special-message', content: `✝🙏 Saint-${saint} 🙏✝` }));
             }
-
-            // TODO : Broadcast
-            // Display clients size
-            console.log(`[WS] ${this.clients.size} clients`);
-            // this.clients.forEach((client) => {
-            //     if (client !== ws && client.readyState === ws.OPEN) {
-            //         if(client.userid in myfriends) client.send(message);
-            //     }
-            // });
         } catch (error) {
-            console.error('Error creating message:', error.message);
+            return ws.send(JSON.stringify({ error: 'Server error' }));
         }
     }
 }
