@@ -67,11 +67,11 @@ class ChatWS extends  WS.WebSocketServer {
             return ws.send(JSON.stringify({ error: 'User is required' }));
         }
 
-        // // Vérifier si l'utilisateur est connecté sur Redis
-        // let exists = await client.exists(`user:${user}`);
-        // if (exists === 0) {
-        //     return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
-        // }
+        // Vérifier si l'utilisateur est connecté sur Redis
+        let exists = await client.exists(`user:${user}`);
+        if (exists === 0) {
+            return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+        }
 
         // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
         for (let client of this.clients) {
