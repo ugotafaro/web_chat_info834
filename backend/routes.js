@@ -38,6 +38,15 @@ const join_conversation = async (req, res) => {
     }
 };
 
+const new_conversation = async (req, res) => {
+  try {
+    const createdConversation = await messageController.new_conversation(req.body);
+    return res.json({ message: 'Conversation created successfully', data: createdConversation });
+  } catch (error) {
+    return handleErrors(res, 400, error.message);
+  }
+};
+
 // Routes
 
 // Users
@@ -54,6 +63,7 @@ router.delete('/delete-message',messageController.delete_message);
 // Conversations
 router.get('/get-conversation',messageController.get_conversation);
 router.get('/get-conversations', get_conversations);
+router.post('/new-conversation', new_conversation);
 router.delete('/delete-conversation',messageController.delete_conversation);
 router.put('/join-conversation', join_conversation);
 router.delete('/leave-conversation',messageController.leave_conversation);

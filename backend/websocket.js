@@ -32,7 +32,13 @@ class ChatWS extends  WS.WebSocketServer {
     }
 
     async onMessage(ws, message) {
-        const { action, data } = JSON.parse(message);
+        // Try to parse the message
+        let action, data;
+        try {
+            ({ action, data } = JSON.parse(message));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: 'Invalid JSON' }));
+        }
 
         // Authentification : cas unique où l'utilisateur n'a pas besoin d'être loggé
         if (action === 'set-user') {
@@ -54,6 +60,9 @@ class ChatWS extends  WS.WebSocketServer {
             case 'new-message':
                 this.onNewMessage(ws, data);
                 break;
+            case 'new-conversation':
+                this.onNewConversation(ws, data);
+                break;
             case 'join-conversation':
                 this.onJoinConversation(ws, data);
                 break;
@@ -65,10 +74,19 @@ class ChatWS extends  WS.WebSocketServer {
 
     async onJoinConversation(ws, data) {
         // Ajouter l'utilisateur à la conversation
-        let { user, conversation } = data;
         try {
-            let updatedConversation = await messageController.join_conversation(user, conversation);
+            let updatedConversation = await messageController.join_conversation(data);
             return ws.send(JSON.stringify({ action: 'join-conversation', data: updatedConversation }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    async onNewConversation(ws, data) {
+        // Créer la conversation
+        try {
+            let newConversation = await messageController.new_conversation(data);
+            return ws.send(JSON.stringify({ action: 'new-conversation', data: newConversation }));
         } catch (error) {
             return ws.send(JSON.stringify({ error: error.message }));
         }

@@ -72,6 +72,26 @@ const get_conversation = async (req, res) => {
     }
 };
 
+const new_conversation = async (data) => {
+    let { users, name } = data;
+
+    // Vérifiez si les donnés sont correctes
+    if (!name) throw new Error('Conversation name is required');
+    if (name.length < 3) throw new Error('Conversation name should be at least 3 characters long');
+    if (!users) throw new Error('At least two users ID are required');
+    users = users.split(',') || [];
+    if (users.length < 2) throw new Error('At least two users ID are required');
+    if (users.some(user => !ObjectId.isValid(user))) throw new Error('Invalid user ID');
+    users = users.map(user => new ObjectId(user));
+
+    // Créer la conversation
+    try {
+        return await Conversation.create({ name, users });
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
 const delete_message = async (req, res) => {
     let { id } = req.body;
 
@@ -203,6 +223,7 @@ module.exports = {
     new_message,
     get_conversation,
     get_conversations,
+    new_conversation,
     delete_message,
     delete_conversation,
     join_conversation,
