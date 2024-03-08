@@ -1,7 +1,7 @@
 # INFO834 - ✝Messagé
 Une application de web chat en temps réel.
 
-Coté backend : Node fournit une API REST avec Express, lié à une base de données MongoDB et à Redis.
+Coté backend : Node fournit une API REST avec Express, ainsi qu'un système de web socket pour diffuser les messages en temps-réel. Tout est lié à une base de données MongoDB et à un cache Redis.
 
 Coté frontend : Angular fournit le frontend et accède à l'API.
 
