@@ -66,6 +66,9 @@ class ChatWS extends  WS.WebSocketServer {
             case 'join-conversation':
                 this.onJoinConversation(ws, data);
                 break;
+            case 'leave-conversation':
+                this.onLeaveConversation(ws, data);
+                break;
             default:
                 ws.send(JSON.stringify({ error: 'Action not found' }));
                 return;
@@ -77,6 +80,16 @@ class ChatWS extends  WS.WebSocketServer {
         try {
             let updatedConversation = await messageController.join_conversation(data);
             return ws.send(JSON.stringify({ action: 'join-conversation', data: updatedConversation }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    async onLeaveConversation(ws, data) {
+        // Supprimer l'utilisateur de la conversation
+        try {
+            let updatedConversation = await messageController.leave_conversation(data);
+            return ws.send(JSON.stringify({ action: 'leave-conversation', data: updatedConversation }));
         } catch (error) {
             return ws.send(JSON.stringify({ error: error.message }));
         }
@@ -101,10 +114,10 @@ class ChatWS extends  WS.WebSocketServer {
         }
 
         // Vérifier si l'utilisateur est connecté sur Redis
-        let exists = await client.exists(`user:${user}`);
-        if (exists === 0) {
-            return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
-        }
+        // let exists = await client.exists(`user:${user}`);
+        // if (exists === 0) {
+        //     return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+        // }
 
         // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
         for (let client of this.clients) {

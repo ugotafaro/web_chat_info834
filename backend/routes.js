@@ -47,6 +47,15 @@ const new_conversation = async (req, res) => {
   }
 };
 
+const leave_conversation = async (req, res) => {
+  try {
+    const updatedConversation = await messageController.leave_conversation(req.body);
+    return res.json({ message: 'User removed from the conversation', data: updatedConversation });
+  } catch (error) {
+    return handleErrors(res, 400, error.message);
+  }
+};
+
 // Routes
 
 // Users
@@ -66,7 +75,7 @@ router.get('/get-conversations', get_conversations);
 router.post('/new-conversation', new_conversation);
 router.delete('/delete-conversation',messageController.delete_conversation);
 router.put('/join-conversation', join_conversation);
-router.delete('/leave-conversation',messageController.leave_conversation);
+router.delete('/leave-conversation', leave_conversation);
 router.put('/rename-conversation',messageController.rename_conversation);
 
 module.exports = router;

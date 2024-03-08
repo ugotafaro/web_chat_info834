@@ -165,36 +165,34 @@ const join_conversation = async (data) => {
     }
 }
 
-const leave_conversation = async (req, res) =>{
-    let { leaver, id } = req.body;
+const leave_conversation = async (data) =>{
+    let { user, conversation } = data;
 
     // Vérifiez l'ID de l'utilisateur qui quitte
-    if (!leaver) return handleErrors(res, 400, 'User (leaver) id is required');
-    if (!ObjectId.isValid(leaver)) return handleErrors(res, 400, 'Invalid user (leaver) id');
-    leaver = new ObjectId(leaver);
+    if (!user) throw new Error('User ID is required');
+    if (!ObjectId.isValid(user)) throw new Error('Invalid user ID');
+    user = new ObjectId(user);
 
     // Vérifiez l'ID de la conversation
-    if (!id) return handleErrors(res, 400, 'Conversation id is required');
-    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
-    id = new ObjectId(id);
+    if (!conversation) throw new Error('Conversation ID is required');
+    if (!ObjectId.isValid(conversation)) throw new Error('Invalid conversation ID');
+    conversation = new ObjectId(conversation);
 
     // Vérifiez si la conversation et l'utilisateur existe
-    let exists = await Conversation.exists(id);
-    if (!exists) return handleErrors(res, 404, 'Conversation not found');
-    exists = await User.exists(leaver);
-    if (!exists) return handleErrors(res, 404, 'User not found');
+    let exists = await Conversation.exists(conversation);
+    if (!exists) throw new Error('Conversation not found');
+    exists = await User.exists(user);
+    if (!exists) throw new Error('User not found');
 
     // Vérifiez si l'utilisateur est dans la conversation
-    const conversation = await Conversation.findOne({ _id: id, users: { $elemMatch: { $eq: leaver } } });
-    if (!conversation) return handleErrors(res, 404, 'User not in the conversation');
+    isIn = await Conversation.findOne({ _id: conversation, users: { $elemMatch: { $eq: user } } });
+    if (!isIn) throw new Error('User not in the conversation');
 
     try {
         // Mettre à jour la conversation pour retirer le nouvel utilisateur
-        const conversation = await Conversation.updateOne({ _id: id }, { $pull: { users: leaver } });
-
-        return res.json({ message: 'User removed from the conversation', data: conversation });
+        return await Conversation.updateOne({ _id: conversation }, { $pull: { users: user } });
     } catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 }
 
