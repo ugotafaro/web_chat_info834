@@ -36,8 +36,7 @@ class ChatWS extends  WS.WebSocketServer {
 
         // Authentification : cas unique où l'utilisateur n'a pas besoin d'être loggé
         if (action === 'set-user') {
-            let { user } = data;
-            this.onSetUser(ws, user);
+            this.onSetUser(ws, data);
             return;
         }
 
@@ -53,18 +52,34 @@ class ChatWS extends  WS.WebSocketServer {
         // Act !
         switch (action) {
             case 'new-message':
-                let { content, conversation } = data;
-                this.onNewMessage(ws, content, conversation);
+                this.onNewMessage(ws, data);
+                break;
+            case 'join-conversation':
+                this.onJoinConversation(ws, data);
                 break;
             default:
+                ws.send(JSON.stringify({ error: 'Action not found' }));
                 return;
         }
     }
 
-    async onSetUser(ws, user) {
+    async onJoinConversation(ws, data) {
+        // Ajouter l'utilisateur à la conversation
+        let { user, conversation } = data;
+        try {
+            let updatedConversation = await messageController.join_conversation(user, conversation);
+            return ws.send(JSON.stringify({ action: 'join-conversation', data: updatedConversation }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    async onSetUser(ws, data) {
         // Vérifier les données
+        let { user } = data;
         if (!user) {
-            return ws.send(JSON.stringify({ error: 'User is required' }));
+            ws.send(JSON.stringify({ error: 'User is required' }));
+            return;
         }
 
         // Vérifier si l'utilisateur est connecté sur Redis
@@ -85,18 +100,20 @@ class ChatWS extends  WS.WebSocketServer {
 
         // Récupérer et envoyer les conversations de l'utilisateur
         try {
-            let conversations = await messageController.get_conversations(user);
-            return ws.send(JSON.stringify({ action: 'get-conversations', data: { conversations } }));
+            let conversations = await messageController.get_conversations(data);
+            return ws.send(JSON.stringify({ action: 'get-conversations', data: conversations }));
         } catch (error) {
             return ws.send(JSON.stringify({ error: error.message }));
         }
     }
 
-    async onNewMessage(ws, content, conversation) {
+    async onNewMessage(ws, data) {
+        const { content, conversation } = data;
+
         // Créer le message et broadcaster
         try {
             // Créer le message avec le controller
-            const createdMessage = await messageController.new_message(content, ws.user, conversation);
+            const createdMessage = await messageController.new_message({ ...data, user: ws.user });
 
             // Récupérer l'ID des autres utilisateurs dans la conversation
             let others = await Conversation.findById(conversation, 'users');

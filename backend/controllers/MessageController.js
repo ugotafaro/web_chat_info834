@@ -6,7 +6,9 @@ const { ObjectId } = require('mongodb');
 const { handleErrors } = require('../util.js');
 
 
-const new_message = async (content, sender, conversation) => {
+const new_message = async (data) => {
+    let { content, sender, conversation } = data;
+
     // Vérifiez si les donnés sont correctes
     if (!content) throw new Error('Message content is required');
     if (!sender) throw new Error('Sender id is required');
@@ -32,7 +34,9 @@ const new_message = async (content, sender, conversation) => {
 
 };
 
-const get_conversations = async (user) => {
+const get_conversations = async (data) => {
+    let user = data.user;
+
     // Vérifiez si l'utilisateur sont spécifiés
     if (!user) throw new Error('User id is required');
     if (!ObjectId.isValid(user)) throw new Error('Invalid user id');
@@ -114,32 +118,30 @@ const delete_conversation = async (req, res) =>{
     }
 }
 
-const join_conversation = async (req, res) => {
-    let { new_user, id } = req.body;
+const join_conversation = async (data) => {
+    let { user, conversation } = data;
 
     // Vérifiez l'ID du nouvel utilisateur
-    if (!new_user) return handleErrors(res, 400, 'User id is required');
-    if (!ObjectId.isValid(new_user)) return handleErrors(res, 400, 'Invalid user id');
-    new_user = new ObjectId(new_user);
+    if (!user) throw new Error('User id is required');
+    if (!ObjectId.isValid(user)) throw new Error('Invalid user id');
+    user = new ObjectId(user);
 
     // Vérifiez l'ID de la conversation
-    if (!id) return handleErrors(res, 400, 'Conversation id is required');
-    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
-    id = new ObjectId(id);
+    if (!conversation) throw new Error('Conversation id is required');
+    if (!ObjectId.isValid(conversation)) throw new Error('Invalid conversation id');
+    conversation = new ObjectId(conversation);
 
     // Vérifiez si la conversation et l'utilisateur existe
-    let exists = await Conversation.exists(id);
-    if (!exists) return handleErrors(res, 404, 'Conversation not found');
-    exists = await User.exists(new_user);
-    if (!exists) return handleErrors(res, 404, 'User not found');
+    let exists = await Conversation.exists(conversation);
+    if (!exists) throw new Error('Conversation not found');
+    exists = await User.exists(user);
+    if (!exists) throw new Error('User not found');
 
     try {
         // Mettre à jour la conversation pour ajouter le nouvel utilisateur
-        const conversation = await Conversation.updateOne({ _id: id }, { $push: { users: new_user } });
-
-        return res.json({ message: 'User added to conversation', data: conversation });
+        return await Conversation.updateOne({ _id: conversation }, { $push: { users: user } });
     } catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 }
 
