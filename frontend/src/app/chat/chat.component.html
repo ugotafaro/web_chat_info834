@@ -8,14 +8,25 @@
 <body class="flex">
     <div class="flex w-20 h-screen border-r justify-center items-end">
         <img class="w-12 h-12 rounded-full mb-3" src="https://scontent-cdg4-3.xx.fbcdn.net/v/t39.30808-6/405749792_1393286457927462_7856887877498089774_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=q_vF-SxbNTQAX_m1FPG&_nc_ht=scontent-cdg4-3.xx&oh=00_AfBeqcsPMNLz1AEspfhpNu5qThvQ9n0NO9J7KRPsJQKyvA&oe=65E78CF9" alt="Jese image">
-
     </div>
     <div class="flex flex-col h-screen w-1/3 border-r-2">
-        <div class="flex bg-white py-2 m-5">
-           <img class="w-7 h-7 mr-3" src="assets/favicon.png" alt="">
-            <h1 class="text-xl font-bold">
-                Messagé
-           </h1>
+        <div class="bg-white py-2 m-5 sm:flex sm:items-center sm:justify-between dark:bg-gray-800">
+            <div class="flex justify-center items-center space-x-1">
+                <img class="w-7 h-7 mr-3" src="assets/favicon.png" alt="">
+                <h1 class="text-xl font-bold">Messagé</h1>
+            </div>
+            <div class="flex justify-center items-center space-x-1">
+                <a href="#" data-tooltip-target="tooltip-new-conv" class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.8v8.4M7.8 12h8.4m4.8 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    <span class="sr-only">Nouvelle conversation</span>
+                </a>
+                <div id="tooltip-new-conv" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+                    Nouvelle conversation
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            </div>
         </div>
 
         <div class="relative h-[calc(100% - 110px)] overflow-auto">
