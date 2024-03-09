@@ -58,7 +58,7 @@ const leave_conversation = async (req, res) => {
 
 const search_users = async (req, res) => {
   try {
-    const users = await userController.search_users(req.body);
+    const users = await userController.search_users(req.query);
     return res.json({ message: `Found ${users.length} users`, data: users });
   } catch (error) {
     return handleErrors(res, 400, error.message);

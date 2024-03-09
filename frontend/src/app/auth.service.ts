@@ -25,7 +25,7 @@ export class AuthService {
     );
   }
 
-  attemptLogout(): Observable<any>  {
+  attemptLogout$(): Observable<any>  {
     const token = JSON.parse(localStorage.getItem('user') || '{}').token;
 
     if (!token) return new Observable();
@@ -69,5 +69,28 @@ export class AuthService {
 
   getUser(): User | null {
     return this.user.getValue();
+  }
+
+  searchUsers$(query: string): Observable<User[]> {
+    return this.http.get<any>(`${this.apiUrl}/search-users?search=${query}`).pipe(
+      map(response => this.mapUsers(response))
+    );
+  }
+
+  private mapUsers(response: any): User[] {
+    // Assuming users are returned in the 'data' field of the response
+    const usersData = response.data || [];
+
+    // Map each user in the 'data' array to the User model
+    return usersData.map((user: any) => {
+      return {
+        id: user._id || 0,
+        username: user.username || '',
+        email: user.email || '',
+        token: '',
+        firstname: user.firstname || '',
+        lastname: user.lastname || '',
+      };
+    });
   }
 }

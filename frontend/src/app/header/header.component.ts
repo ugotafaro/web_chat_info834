@@ -19,7 +19,7 @@ export class HeaderComponent {
   }
 
   logout() {
-    this.authService.attemptLogout().subscribe({
+    this.authService.attemptLogout$().subscribe({
       next: () => this.router.navigate(['/']),
       error: (error) => console.error(error),
     });

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, ViewChild } from '@angular/core';
 import { Message } from '../../message';
-import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChatService as ChatSocketService } from '../chat.service';
 import { AuthService } from '../auth.service';
@@ -25,18 +25,53 @@ export class ChatComponent implements AfterViewChecked {
   messageForm = new FormGroup({
     message : new FormControl('')
   });
+
+  // Used for the new conversation form
+  suggestedUsers: Observable<User[]> = new Observable<User[]>();
+  selectedUsers: User[] = [];
+  newConversationForm = this.formBuilder.group({
+    name: ['', Validators.required],
+    user: [''],
+  })
+
   showEmojiPicker = false;
   set = 'apple';
 
-
-  constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router) {
+  constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router, private formBuilder: FormBuilder) {
     chatService.messages.subscribe(msg => {
       this.listMessages.unshift(msg);
+    });
+
+    // Call searchUsers$ whenever the user input changes
+    this.newConversationForm.get('user')!.valueChanges.pipe().subscribe({
+      next: (user) => {
+        if (user && user.length >= 3) {
+          this.suggestedUsers = this.authService.searchUsers$(user);
+        } else {
+          this.suggestedUsers = new Observable<User[]>();
+        }
+      },
+      error: (error) => {
+      this.suggestedUsers = new Observable<User[]>();
+      console.error(error);
+      },
+    });
+  }
+
+  onSelectUser(event: any): void {
+    // Récupérer l'ID de l'utilisateur sélectionné
+    const selectedId = event.target.value;
+
+    // Trouver l'utilisateur sélectionné dans la liste des utilisateurs suggérés
+    this.suggestedUsers.subscribe(users => {
+      const selectedUser = users.find(user => user.id === selectedId);
+
+      // Ajouter l'utilisateur à la liste des utilisateurs sélectionnés
+      if (selectedUser) this.selectedUsers.push(selectedUser);
     });
   }
 
   ngOnInit() {
-  
     this.listMessages = [];
   }
 
@@ -83,7 +118,7 @@ export class ChatComponent implements AfterViewChecked {
   }
 
   logout() {
-    this.authService.attemptLogout().subscribe({
+    this.authService.attemptLogout$().subscribe({
       next: () => this.router.navigate(['/login']),
       error: (error) => console.error(error),
     });
