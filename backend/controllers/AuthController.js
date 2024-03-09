@@ -2,10 +2,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { client } = require('../redis.js');
 const User = require('../models/UserModel.js');
-const { handleErrors } = require('../util.js');
+const { handleErrors, handleLoginErrors } = require('../util.js');
 
 // Time span for login fail to be considered as "recent" (in ms)
 const FAIL_SPAN = 5 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 5;
 
 const signup = async (req, res) => {
     const { username, password, lastname, firstname } = req.body;
@@ -53,7 +54,7 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
     // Check if credentials are given
-    if (!username || !password) return handleErrors(res, 401, 'Username and password are required');
+    if (!username || !password) return handleErrors(res, 400, 'Username and password are required');
 
     // Get current time and threshold (FAIL_SPAN milliseconds ago)
     const timestamp = new Date();
@@ -72,10 +73,10 @@ const login = async (req, res) => {
     }).length;
 
     // Check number of failed attempts
-    if (numberFails >= 5) {
+    if (numberFails + 1 >= MAX_LOGIN_ATTEMPTS) {
         // TODO : Ajouter le fail dans Redis ?
         // client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'Too many failed attempts'}));
-        return handleErrors(res, 401, 'Too many failed attempts', numberFails);
+        return handleLoginErrors(res, 429, 'Too many failed attempts', numberFails, FAIL_SPAN, MAX_LOGIN_ATTEMPTS);
     }
 
     // Get user
@@ -84,14 +85,14 @@ const login = async (req, res) => {
     // Check if user exists
     if (!user) {
         client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'User not found'}));
-        return handleErrors(res, 401, 'Invalid credentials', numberFails + 1);
+        return handleLoginErrors(res, 401, 'Invalid credentials', numberFails + 1, FAIL_SPAN, MAX_LOGIN_ATTEMPTS);
     };
 
     // Check password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
         client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'Invalid password'}));
-        return handleErrors(res, 401, 'Invalid credentials', numberFails + 1);
+        return handleLoginErrors(res, 401, 'Invalid credentials', numberFails + 1, FAIL_SPAN, MAX_LOGIN_ATTEMPTS);
     }
 
     // Succes ! Generate and save a token

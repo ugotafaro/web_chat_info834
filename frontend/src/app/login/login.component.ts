@@ -32,7 +32,26 @@ export class LoginComponent {
 
     this.authService.attemptLogin(this.loginForm.value).subscribe({
       next: () => this.router.navigate(['/']),
-      error: () => this.customErrorMessage = "Identifiant ou mot de passe incorrect",
+      error: (res) => {
+        let status = res.status;
+        let { fails, failSpan, maxAttempts } = res.error;
+
+        let remainingAttempts = Math.max(0, maxAttempts - fails);
+        let failSpanMinutes = failSpan / 60 / 1000;
+        switch (status) {
+          case 400:
+            this.customErrorMessage = `Identifiant et mot de passe requis`;
+            break;
+          case 401:
+            this.customErrorMessage = `Identifiant ou mot de passe incorrect (${remainingAttempts} essais restants)`;
+            break;
+          case 429:
+            this.customErrorMessage = `Ce compte est bloqué. Veuillez attendre au moins ${failSpanMinutes} minutes avant de réessayer.`;
+            break;
+          default:
+            this.customErrorMessage = "Erreur inconnue";
+        }
+      }
     });
   }
 
