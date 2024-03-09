@@ -26,7 +26,7 @@ function passwordMatchValidator(): ValidatorFn {
 
 export class SignUpComponent {
   signupForm = this.formBuilder.group({
-    username: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(20)]],
+    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]*$/)]],
     passwordConfirm: ['', Validators.required],
     firstname: ['', [Validators.minLength(4), Validators.pattern(/^[\p{L}-]+$/u)]],

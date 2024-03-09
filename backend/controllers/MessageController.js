@@ -6,7 +6,9 @@ const { ObjectId } = require('mongodb');
 const { handleErrors } = require('../util.js');
 
 
-const new_message = async (content, sender, conversation) => {
+const new_message = async (data) => {
+    let { content, sender, conversation } = data;
+
     // Vérifiez si les donnés sont correctes
     if (!content) throw new Error('Message content is required');
     if (!sender) throw new Error('Sender id is required');
@@ -25,7 +27,6 @@ const new_message = async (content, sender, conversation) => {
     try {
         let message = new Message({ content, sender, conversation });
         await message.validate();
-        message = await Message.create(message);
         return await Message.create(message);
     } catch (error) {
         throw new Error(error.message);
@@ -33,22 +34,19 @@ const new_message = async (content, sender, conversation) => {
 
 };
 
-const get_conversations = async (req, res) => {
-    let user = req.query.user;
+const get_conversations = async (data) => {
+    let user = data.user;
 
     // Vérifiez si l'utilisateur sont spécifiés
-    if (!user) return handleErrors(res, 400, 'User id is required');
-    if (!ObjectId.isValid(user)) return handleErrors(res, 400, 'Invalid user id');
-
+    if (!user) throw new Error('User id is required');
+    if (!ObjectId.isValid(user)) throw new Error('Invalid user id');
     user = new ObjectId(user);
 
     try {
         // Recherchez les chats (conversations + messages + utilisateurs) associés à l'utilisateur
-        const data = await Chat.find({ users: { $elemMatch: { _id: user } }});
-
-        return res.json({ data });
+        return await Chat.find({ users: { $elemMatch: { _id: user } }});
     } catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 };
 
@@ -71,6 +69,26 @@ const get_conversation = async (req, res) => {
         return res.json({ data: conversation });
     } catch (e) {
         return handleErrors(res, e.code, e.message);
+    }
+};
+
+const new_conversation = async (data) => {
+    let { users, name } = data;
+
+    // Vérifiez si les donnés sont correctes
+    if (!name) throw new Error('Conversation name is required');
+    if (name.length < 3) throw new Error('Conversation name should be at least 3 characters long');
+    if (!users) throw new Error('At least two users ID are required');
+    users = users.split(',') || [];
+    if (users.length < 2) throw new Error('At least two users ID are required');
+    if (users.some(user => !ObjectId.isValid(user))) throw new Error('Invalid user ID');
+    users = users.map(user => new ObjectId(user));
+
+    // Créer la conversation
+    try {
+        return await Conversation.create({ name, users });
+    } catch (error) {
+        throw new Error(error.message);
     }
 };
 
@@ -120,65 +138,61 @@ const delete_conversation = async (req, res) =>{
     }
 }
 
-const join_conversation = async (req, res) => {
-    let { new_user, id } = req.body;
+const join_conversation = async (data) => {
+    let { user, conversation } = data;
 
     // Vérifiez l'ID du nouvel utilisateur
-    if (!new_user) return handleErrors(res, 400, 'User id is required');
-    if (!ObjectId.isValid(new_user)) return handleErrors(res, 400, 'Invalid user id');
-    new_user = new ObjectId(new_user);
+    if (!user) throw new Error('User id is required');
+    if (!ObjectId.isValid(user)) throw new Error('Invalid user id');
+    user = new ObjectId(user);
 
     // Vérifiez l'ID de la conversation
-    if (!id) return handleErrors(res, 400, 'Conversation id is required');
-    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
-    id = new ObjectId(id);
+    if (!conversation) throw new Error('Conversation id is required');
+    if (!ObjectId.isValid(conversation)) throw new Error('Invalid conversation id');
+    conversation = new ObjectId(conversation);
 
     // Vérifiez si la conversation et l'utilisateur existe
-    let exists = await Conversation.exists(id);
-    if (!exists) return handleErrors(res, 404, 'Conversation not found');
-    exists = await User.exists(new_user);
-    if (!exists) return handleErrors(res, 404, 'User not found');
+    let exists = await Conversation.exists(conversation);
+    if (!exists) throw new Error('Conversation not found');
+    exists = await User.exists(user);
+    if (!exists) throw new Error('User not found');
 
     try {
         // Mettre à jour la conversation pour ajouter le nouvel utilisateur
-        const conversation = await Conversation.updateOne({ _id: id }, { $push: { users: new_user } });
-
-        return res.json({ message: 'User added to conversation', data: conversation });
+        return await Conversation.updateOne({ _id: conversation }, { $push: { users: user } });
     } catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 }
 
-const leave_conversation = async (req, res) =>{
-    let { leaver, id } = req.body;
+const leave_conversation = async (data) =>{
+    let { user, conversation } = data;
 
     // Vérifiez l'ID de l'utilisateur qui quitte
-    if (!leaver) return handleErrors(res, 400, 'User (leaver) id is required');
-    if (!ObjectId.isValid(leaver)) return handleErrors(res, 400, 'Invalid user (leaver) id');
-    leaver = new ObjectId(leaver);
+    if (!user) throw new Error('User ID is required');
+    if (!ObjectId.isValid(user)) throw new Error('Invalid user ID');
+    user = new ObjectId(user);
 
     // Vérifiez l'ID de la conversation
-    if (!id) return handleErrors(res, 400, 'Conversation id is required');
-    if (!ObjectId.isValid(id)) return handleErrors(res, 400, 'Invalid conversation id');
-    id = new ObjectId(id);
+    if (!conversation) throw new Error('Conversation ID is required');
+    if (!ObjectId.isValid(conversation)) throw new Error('Invalid conversation ID');
+    conversation = new ObjectId(conversation);
 
     // Vérifiez si la conversation et l'utilisateur existe
-    let exists = await Conversation.exists(id);
-    if (!exists) return handleErrors(res, 404, 'Conversation not found');
-    exists = await User.exists(leaver);
-    if (!exists) return handleErrors(res, 404, 'User not found');
+    let exists = await Conversation.exists(conversation);
+    if (!exists) throw new Error('Conversation not found');
+    exists = await User.exists(user);
+    if (!exists) throw new Error('User not found');
 
     // Vérifiez si l'utilisateur est dans la conversation
-    const conversation = await Conversation.findOne({ _id: id, users: { $elemMatch: { $eq: leaver } } });
-    if (!conversation) return handleErrors(res, 404, 'User not in the conversation');
+    isIn = await Conversation.findOne({ _id: conversation, users: { $elemMatch: { $eq: user } } });
+    if (!isIn) throw new Error('User not in the conversation');
 
     try {
         // Mettre à jour la conversation pour retirer le nouvel utilisateur
-        const conversation = await Conversation.updateOne({ _id: id }, { $pull: { users: leaver } });
-
-        return res.json({ message: 'User removed from the conversation', data: conversation });
+        return await Conversation.updateOne({ _id: conversation }, { $pull: { users: user } });
     } catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 }
 
@@ -207,6 +221,7 @@ module.exports = {
     new_message,
     get_conversation,
     get_conversations,
+    new_conversation,
     delete_message,
     delete_conversation,
     join_conversation,
