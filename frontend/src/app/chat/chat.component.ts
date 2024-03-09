@@ -62,12 +62,17 @@ export class ChatComponent implements AfterViewChecked {
     // Récupérer l'ID de l'utilisateur sélectionné
     const selectedId = event.target.value;
 
-    // Trouver l'utilisateur sélectionné dans la liste des utilisateurs suggérés
     this.suggestedUsers.subscribe(users => {
+      // Trouver l'utilisateur sélectionné
       const selectedUser = users.find(user => user.id === selectedId);
+      if(!selectedUser) return;
 
-      // Ajouter l'utilisateur à la liste des utilisateurs sélectionnés
-      if (selectedUser) this.selectedUsers.push(selectedUser);
+      // Vérifier si l'utilisateur est déjà sélectionnés
+      const alreadySelected = this.selectedUsers.find(user => user.id === selectedId);
+      if (alreadySelected) return;
+
+      // Ajouter l'utilisateur sélectionné à la liste des utilisateurs sélectionnés
+      this.selectedUsers.push(selectedUser);
     });
   }
 
