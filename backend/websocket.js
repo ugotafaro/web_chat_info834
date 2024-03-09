@@ -1,5 +1,6 @@
 const WS = require('ws');
 const messageController = require('./controllers/MessageController');
+const userController = require('./controllers/UserController');
 const { client } = require('./redis.js');
 const Conversation = require('./models/ConversationModel.js');
 
@@ -69,9 +70,22 @@ class ChatWS extends  WS.WebSocketServer {
             case 'leave-conversation':
                 this.onLeaveConversation(ws, data);
                 break;
+            case 'search-users':
+                this.onSearchUsers(ws, data);
+                break;
             default:
                 ws.send(JSON.stringify({ error: 'Action not found' }));
                 return;
+        }
+    }
+
+    async onSearchUsers(ws, data) {
+        // Récupérer les utilisateurs
+        try {
+            let users = await userController.search_users(data);
+            return ws.send(JSON.stringify({ action: 'search-users', data: users }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
         }
     }
 
@@ -114,10 +128,10 @@ class ChatWS extends  WS.WebSocketServer {
         }
 
         // Vérifier si l'utilisateur est connecté sur Redis
-        // let exists = await client.exists(`user:${user}`);
-        // if (exists === 0) {
-        //     return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
-        // }
+        let exists = await client.exists(`user:${user}`);
+        if (exists === 0) {
+            return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+        }
 
         // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
         for (let client of this.clients) {
