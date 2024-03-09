@@ -2,7 +2,6 @@ const WS = require('ws');
 const messageController = require('./controllers/MessageController');
 const { client } = require('./redis.js');
 const Conversation = require('./models/ConversationModel.js');
-const { ObjectId } = require('mongodb');
 
 class ChatWS extends  WS.WebSocketServer {
     constructor(options) {
@@ -33,12 +32,17 @@ class ChatWS extends  WS.WebSocketServer {
     }
 
     async onMessage(ws, message) {
-        const { action, data } = JSON.parse(message);
+        // Try to parse the message
+        let action, data;
+        try {
+            ({ action, data } = JSON.parse(message));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: 'Invalid JSON' }));
+        }
 
         // Authentification : cas unique où l'utilisateur n'a pas besoin d'être loggé
         if (action === 'set-user') {
-            let { user } = data;
-            this.onSetUser(ws, user);
+            this.onSetUser(ws, data);
             return;
         }
 
@@ -54,52 +58,93 @@ class ChatWS extends  WS.WebSocketServer {
         // Act !
         switch (action) {
             case 'new-message':
-                let { content, conversation } = data;
-                this.onNewMessage(ws, content, conversation);
+                this.onNewMessage(ws, data);
+                break;
+            case 'new-conversation':
+                this.onNewConversation(ws, data);
+                break;
+            case 'join-conversation':
+                this.onJoinConversation(ws, data);
+                break;
+            case 'leave-conversation':
+                this.onLeaveConversation(ws, data);
                 break;
             default:
+                ws.send(JSON.stringify({ error: 'Action not found' }));
                 return;
         }
     }
 
-    async onSetUser(ws, user) {
+    async onJoinConversation(ws, data) {
+        // Ajouter l'utilisateur à la conversation
+        try {
+            let updatedConversation = await messageController.join_conversation(data);
+            return ws.send(JSON.stringify({ action: 'join-conversation', data: updatedConversation }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    async onLeaveConversation(ws, data) {
+        // Supprimer l'utilisateur de la conversation
+        try {
+            let updatedConversation = await messageController.leave_conversation(data);
+            return ws.send(JSON.stringify({ action: 'leave-conversation', data: updatedConversation }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    async onNewConversation(ws, data) {
+        // Créer la conversation
+        try {
+            let newConversation = await messageController.new_conversation(data);
+            return ws.send(JSON.stringify({ action: 'new-conversation', data: newConversation }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    async onSetUser(ws, data) {
         // Vérifier les données
+        let { user } = data;
         if (!user) {
             ws.send(JSON.stringify({ error: 'User is required' }));
             return;
         }
 
         // Vérifier si l'utilisateur est connecté sur Redis
-        let exists = await client.exists(`user:${user}`);
-        if (exists === 0) {
-            ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
-            return;
-        }
+        // let exists = await client.exists(`user:${user}`);
+        // if (exists === 0) {
+        //     return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+        // }
 
         // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
         for (let client of this.clients) {
             if (client.user !== user) continue;
-            ws.send(JSON.stringify({ error: 'User already has a websocket connection' }));
-            return;
+            return ws.send(JSON.stringify({ error: 'User already has a websocket connection' }));
         }
 
+        // Succès !
         ws.user = user;
         console.log(`[WS] User ${ws.user.substring(0, 4)}... connecté`);
+
+        // Récupérer et envoyer les conversations de l'utilisateur
+        try {
+            let conversations = await messageController.get_conversations(data);
+            return ws.send(JSON.stringify({ action: 'get-conversations', data: conversations }));
+        } catch (error) {
+            return ws.send(JSON.stringify({ error: error.message }));
+        }
     }
 
-    async onNewMessage(ws, content, conversation) {
-        // Vérifier les données
-        if(!content || !conversation) {
-            return ws.send(JSON.stringify({ error: 'Content and conversation are required' }))
-        };
-        if(!ObjectId.isValid(conversation)) {
-            return ws.send(JSON.stringify({ error: 'Invalid conversation ID' }));
-        }
+    async onNewMessage(ws, data) {
+        const { content, conversation } = data;
 
         // Créer le message et broadcaster
         try {
             // Créer le message avec le controller
-            const createdMessage = await messageController.new_message(content, ws.user, conversation);
+            const createdMessage = await messageController.new_message({ ...data, user: ws.user });
 
             // Récupérer l'ID des autres utilisateurs dans la conversation
             let others = await Conversation.findById(conversation, 'users');
@@ -133,7 +178,7 @@ class ChatWS extends  WS.WebSocketServer {
                 return ws.send(JSON.stringify({ action: 'new-special-message', content: `✝🙏 Saint-${saint} 🙏✝` }));
             }
         } catch (error) {
-            return ws.send(JSON.stringify({ error: 'Server error' }));
+            return ws.send(JSON.stringify({ error: error.message }));
         }
     }
 }
