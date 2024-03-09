@@ -9,33 +9,27 @@ const get = (req, res) => {
     res.json({ user:req.user });
 };
 
-const search_user = async (req, res) => {
-    let { search } = req.body;
-    
-    if (!search) return handleErrors(res, 400, 'Search parameter is required');
-    if (search.length < 3) return handleErrors(res, 400, '3 character minimum is required');
+const search_users = async (data) => {
+    let { search } = data;
+
+    if (!search) throw new Error('Search parameter is required');
+    if (search.length < 3) throw new Error('3 character minimum is required');
     try {
         const regex = new RegExp(search, 'i');
-        const users = await User.find({
+        return await User.find({
             $or: [
                 { username:{ $regex: regex } },
                 { firstname:{ $regex: regex } },
                 { lastname: { $regex: regex } }
             ]
         },"-password");
-
-        if (!users || users.length === 0) return res.json({ message: 'No user found' });
-        else {
-           
-            return res.json({ message: 'User found', data: users });
-        }
     }
     catch (e) {
-        return handleErrors(res, e.code, e.message);
+        throw new Error(e.message);
     }
 };
 
 module.exports = {
     get,
-    search_user,
+    search_users,
 };
