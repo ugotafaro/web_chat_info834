@@ -36,7 +36,7 @@ const new_message = async (content, sender, conversation) => {
 };
 
 const get_conversations = async (req, res) => {
-    let { user } = req.body;
+    let user = req.query.user;
 
     // Vérifiez si l'utilisateur sont spécifiés
     if (!user) return handleErrors(res, 400, 'User id is required');
