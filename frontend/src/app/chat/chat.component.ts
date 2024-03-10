@@ -43,7 +43,9 @@ export class ChatComponent implements AfterViewChecked {
   ngOnInit() {
   
     this.listMessages = [];
-    this.getUserConversation();
+    this.getUserConversations();
+    console.log("Liste de conversations : ",this.listConversations);
+    console.log("Last message : ",this.getLastMessage())
   }
 
   addMessage(message: string) {
