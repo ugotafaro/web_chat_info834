@@ -19,104 +19,14 @@
            </h1>
         </div>
 
-        <div class="relative h-[calc(100% - 110px)] overflow-auto">
-            <div  class="flex hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
+        <div *ngFor="let conversation of listConversations" class="relative h-[calc(100% - 110px)] overflow-auto">
             <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
+                <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Jese image">
                 <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
+                    <h2 class=" font-semibold">{{conversation.name}}</h2>
                     <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Jessie Phlaileucuby</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
+                        <p class=""></p>
+                        
                     </div>
                 </div>
             </div>
@@ -178,9 +88,18 @@
             </div>
         </div>
 
-
+        <emoji-mart
+            class="emoji-mart absolute bottom-0 left-0"
+            set='apple'
+            *ngIf="showEmojiPicker"
+            (emojiSelect)="addEmoji($event)"
+            title="Pick your emoji…"
+            [darkMode]="false"
+            >                   
+        </emoji-mart>
         <!-- Input section -->
         <div class="relative">
+            
             <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
                 <label for="chat" class="sr-only">Your message</label>
                 <div class="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -210,15 +129,7 @@
                     </button>
                 </div>
             </form>
-            <emoji-mart
-        class="emoji-mart position-absolute top-0 left-0"
-        set='apple'
-        *ngIf="showEmojiPicker"
-        (emojiSelect)="addEmoji($event)"
-        title="Pick your emoji…"
-        [darkMode]="false"
-        >                   
-        </emoji-mart>
+           
         </div>
         
         
