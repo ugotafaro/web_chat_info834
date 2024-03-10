@@ -123,8 +123,8 @@ export class ChatComponent implements AfterViewChecked {
           console.error("Erreur lors de la récupération des conversations :", error);
       }
   );
-    
-  }
+    }
+  
 
   getLastMessage(conversation: Conversation) : Message | null{
     if (conversation.messages.length === 0) {
@@ -134,10 +134,12 @@ export class ChatComponent implements AfterViewChecked {
     
   }
 
+ 
   logout() {
     this.authService.attemptLogout().subscribe({
       next: () => this.router.navigate(['/login']),
       error: (error) => console.error(error),
     });
   }
+  
 }
