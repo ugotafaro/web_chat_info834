@@ -17,109 +17,24 @@
                 Messagé
            </h1>
         </div>
-
         <div class="relative h-[calc(100% - 110px)] overflow-auto">
-            <div  class="flex hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
+
+            <div class=""> <!-- *ngFor="let conversation of listConversations; track conversation"   -->
+                @for (conversation of listConversations; track conversation) {
+                <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
+                    <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Jese image">
+                    <div class="ml-3">
+                        <h2 class=" font-semibold">{{conversation.name}}</h2>
+                        <div class="flex justify-between text-gray-700">
+                            <p *ngIf="getLastMessage(conversation)">{{getLastMessage(conversation)?.content}}</p>
+                            
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Nous sommes des messagés du seigneur, ne nous résignons pas à de tels termes et autres obsénités voyons...</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
-            </div>
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">Luc Dupont</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class="">Fuck me</p>
-                        <span>. 3h</span>
-                    </div>
-                </div>
+                }
             </div>
         </div>
+        
     </div>
 
     <div #chatSection class="relative w-full h-screen ml-3">
@@ -174,9 +89,18 @@
             </div>
         </div>
 
-
+        <emoji-mart
+            class="emoji-mart absolute bottom-0 left-0"
+            set='apple'
+            *ngIf="showEmojiPicker"
+            (emojiSelect)="addEmoji($event)"
+            title="Pick your emoji…"
+            [darkMode]="false"
+            >                   
+        </emoji-mart>
         <!-- Input section -->
         <div class="relative">
+            
             <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
                 <label for="chat" class="sr-only">Your message</label>
                 <div class="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -206,17 +130,10 @@
                     </button>
                 </div>
             </form>
+           
         </div>
-
-        <emoji-mart
-        class="emoji-mart position-absolute top-0 left-0"
-        set='apple'
-        *ngIf="showEmojiPicker"
-        (emojiSelect)="addEmoji($event)"
-        title="Pick your emoji…"
-        [darkMode]="false"
-        >
-        </emoji-mart>
+        
+        
     </div>
 </body>
 

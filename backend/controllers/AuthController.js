@@ -99,7 +99,7 @@ const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, 'secret-key', { expiresIn: '1h' });
 
     // Save user and login success in Redis
-    client.hSet(`user:${user._id}`, {username, token, timestamp: timestamp.toISOString()});
+    //client.hSet(`user:${user._id}`, {username, token, timestamp: timestamp.toISOString()});
     client.lPush(`login-attempts:${username}`, JSON.stringify({timestamp: timestamp.toISOString(), success: true}));
 
     // Respond but without the user password
