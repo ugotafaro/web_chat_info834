@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
 import { ChatService } from './chat.service';
+import { Conversation } from '../conversation';
 
 @Injectable({
   providedIn: 'root'
@@ -92,5 +93,18 @@ export class AuthService {
         lastname: user.lastname || '',
       };
     });
+  }
+
+  createConversation(name: string, users: User[]): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/new-conversation`,
+      {
+        "users": users.map(user => user.id).join(','),
+        "name": name,
+      }
+    ).pipe(
+      map(response => {
+        return { id: response.data._id, name: response.data.name, users: response.data.users };
+      })
+    );
   }
 }

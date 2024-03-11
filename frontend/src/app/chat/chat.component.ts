@@ -76,6 +76,18 @@ export class ChatComponent implements AfterViewChecked {
     });
   }
 
+  newConversation() {
+    const name = this.newConversationForm.get('name')!.value??'';
+    this.authService.createConversation(name, this.selectedUsers).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+  }
+
   ngOnInit() {
     this.listMessages = [];
   }
@@ -83,7 +95,6 @@ export class ChatComponent implements AfterViewChecked {
   addMessage(message: string) {
     let msgObject = new Message(this.listMessages.length + 1, message, new Date().toISOString(), true, 1);
     this.chatService.messages.next(msgObject);
-
   }
 
   toggleEmojiPicker() {
