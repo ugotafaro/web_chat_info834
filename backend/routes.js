@@ -73,7 +73,7 @@ const search_users = async (req, res) => {
 router.post('/login', authController.login);
 router.post('/signup', authController.signup);
 router.post('/logout', AuthGuard, authController.logout);
-router.post('/user/:id', AuthGuard, userController.get);
+router.get('/user/:id', userController.get);
 router.get('/search-users', search_users);
 
 // Messages

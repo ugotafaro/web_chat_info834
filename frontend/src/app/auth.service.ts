@@ -80,5 +80,8 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`);
   }
 
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/user/${id}`);
+  }
 
 }
