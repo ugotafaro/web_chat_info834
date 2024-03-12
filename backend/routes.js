@@ -67,16 +67,6 @@ const search_users = async (req, res) => {
 
 
 
-const new_message = async (req, res) => {
-    try {
-      const { content, sender, conversation } = req.body;
-      const createdMessage = await messageController.new_message(content, sender, conversation);
-      return res.json({ message: 'Message created successfully', data: createdMessage });
-    } catch (error) {
-      return handleErrors(res, 400, error.message);
-    }
-};
-
 // Routes
 
 // Users

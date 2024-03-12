@@ -94,13 +94,22 @@ export class ChatComponent implements AfterViewChecked {
       map(data => {
           data = data.data;
           if (Array.isArray(data)) {
-              return data.map(conversationData => new Conversation(
+                return data.map(conversationData => {
+                const messages = conversationData.messages.map((messageData: any) => new Message(
+                  messageData._id,
+                  messageData.content,
+                  messageData.createdAt,
+                  messageData.sender === this.authService.getUser()!.id ? true : false,
+                  messageData.sender
+                ));
+                return new Conversation(
                   conversationData._id,
                   conversationData.name,
                   conversationData.content,
                   conversationData.users,
-                  conversationData.messages
-              ));
+                  messages
+                );
+                });
           } else {
               throw new Error("Les données reçues ne sont pas un tableau.");
           }
@@ -125,7 +134,6 @@ export class ChatComponent implements AfterViewChecked {
     
   }
 
-  
   logout() {
     this.authService.attemptLogout().subscribe({
       next: () => this.router.navigate(['/login']),
