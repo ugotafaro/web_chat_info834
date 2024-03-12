@@ -19,22 +19,21 @@
            </h1>
         </div>
 
-        <div *ngFor="let conversation of listConversations" class="relative h-[calc(100% - 110px)] overflow-auto">
-            <div  class="flex  hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
-                <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Jese image">
-                <div class="ml-3">
-                    <h2 class=" font-semibold">{{conversation.name}}</h2>
-                    <div class="flex justify-between text-gray-700">
-                        <p class=""></p>
-                        
+        <div class="relative h-[calc(100% - 110px)] overflow-auto">
+            <div *ngFor="let conversation of listConversations" class="">
+                <div  class="flex hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
+                    <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Jese image">
+                    <div class="ml-3">
+                        <h2 class=" font-semibold">{{conversation.name}}</h2>
+                        <div class="flex justify-between text-gray-700">
+                            <p class="text-gray-600">{{getLastMessage(conversation).content}}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        
-
     </div>
+        
 
     <div #chatSection class="relative w-full h-screen ml-3">
         <!-- header -->

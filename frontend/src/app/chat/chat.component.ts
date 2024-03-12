@@ -45,7 +45,7 @@ export class ChatComponent implements AfterViewChecked {
     this.listMessages = [];
     this.getUserConversations();
     console.log("Liste de conversations : ",this.listConversations);
-    console.log("Last message : ",this.getLastMessage())
+    
   }
 
   addMessage(message: string) {
@@ -118,8 +118,8 @@ export class ChatComponent implements AfterViewChecked {
     
   }
 
-  getLastMessage(){
-    return this.listConversations[0].messages[this.listConversations[0].messages.length-1];
+  getLastMessage(conversation: Conversation){
+    return conversation.messages[conversation.messages.length-1];
   }
   logout() {
     this.authService.attemptLogout().subscribe({
