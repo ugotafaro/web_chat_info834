@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
 import { ChatService } from './chat.service';
@@ -20,12 +20,11 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
-        this.chatService.connect(response.user);
       })
     );
   }
 
-  attemptLogout(): Observable<any>  {
+  attemptLogout$(): Observable<any>  {
     const token = JSON.parse(localStorage.getItem('user') || '{}').token;
 
     if (!token) return new Observable();
@@ -74,11 +73,46 @@ export class AuthService {
   get_conservations(): Observable<any> {
     if (!this.isAuthenticated()) return new Observable();
     // const options = {
-      
+
     //   params: new HttpParams().set('user', this.getUser()!.id)
     // };
     return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`);
   }
 
 
+  searchUsers$(query: string): Observable<User[]> {
+    return this.http.get<any>(`${this.apiUrl}/search-users?search=${query}`).pipe(
+      map(response => this.mapUsers(response))
+    );
+  }
+
+  private mapUsers(response: any): User[] {
+    // Assuming users are returned in the 'data' field of the response
+    const usersData = response.data || [];
+
+    // Map each user in the 'data' array to the User model
+    return usersData.map((user: any) => {
+      return {
+        id: user._id || 0,
+        username: user.username || '',
+        email: user.email || '',
+        token: '',
+        firstname: user.firstname || '',
+        lastname: user.lastname || '',
+      };
+    });
+  }
+
+  createConversation(name: string, users: User[]): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/new-conversation`,
+      {
+        "users": users.map(user => user.id).join(','),
+        "name": name,
+      }
+    ).pipe(
+      map(response => {
+        return { id: response.data._id, name: response.data.name, users: response.data.users };
+      })
+    );
+  }
 }

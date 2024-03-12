@@ -1,21 +1,29 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-</head>
-
-<body class="flex">
-    <div class="flex w-20 h-screen border-r justify-center items-end"> 
-        <img class="w-12 h-12 rounded-full mb-3" src="data:image/png;base64,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" alt="Jese image">
-        
+<div class="flex">
+    <div class="flex w-20 h-screen border-r justify-center items-end">
+        <div class="relative inline-flex items-center justify-center w-12 h-12 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+            <span class="font-medium text-gray-600 dark:text-gray-300">{{ (user | async)?.username }}</span>
+        </div>
     </div>
+
     <div class="flex flex-col h-screen w-1/3 border-r-2">
-        <div class="flex bg-white py-2 m-5">
-           <img class="w-7 h-7 mr-3" src="assets/favicon.png" alt="">
-            <h1 class="text-xl font-bold">
-                Messagé
-           </h1>
+        <div class="bg-white py-2 m-5 sm:flex sm:items-center sm:justify-between dark:bg-gray-800">
+            <div class="flex justify-center items-center space-x-1">
+                <img class="w-7 h-7 mr-3" src="assets/favicon.png" alt="">
+                <h1 class="text-xl font-bold">Messagé</h1>
+            </div>
+            <div class="flex justify-center items-center space-x-1">
+                <button data-tooltip-target="tooltip-new-conv" data-modal-target="newConversationModal" data-modal-toggle="newConversationModal" type="button" class="inline-flex justify-center p-2 text-gray-500 rounded-lg cursor-pointer dark:text-gray-400 dark:hover:text-white hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-600">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7.8v8.4M7.8 12h8.4m4.8 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                    </svg>
+                    <span class="sr-only">Nouvelle conversation</span>
+                </button>
+
+                <div id="tooltip-new-conv" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 transition-opacity duration-300 tooltip dark:bg-gray-700">
+                    Nouvelle conversation
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+            </div>
         </div>
         <div class="relative h-[calc(100% - 110px)] overflow-auto">
 
@@ -27,22 +35,22 @@
                         <h2 class=" font-semibold">{{conversation.name}}</h2>
                         <div class="flex justify-between text-gray-700">
                             <p *ngIf="getLastMessage(conversation)">{{getLastMessage(conversation)?.content}}</p>
-                            
+
                         </div>
                     </div>
                 </div>
                 }
             </div>
         </div>
-        
+
     </div>
-        
+
 
     <div #chatSection class="relative w-full h-screen ml-3">
         <!-- header -->
         <div class="flex w-full border-b h-14 bg-white">
             <div class="flex ml-2 mt-2 relative">
-                    <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
+                <img class="w-12 h-12 rounded-full" src="data:image/png;base64,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" alt="Jese image">
                 <div class="flex flex-col">
                     <span class="font-semibold ml-2">{{ (user | async)?.username }}</span>
 
@@ -51,21 +59,21 @@
             </div>
             <a (click)="logout()" *ngIf="isAuth | async" class="flex ml-auto items-center lg:order-2">
                 <button type="button"  class="flex items-center text-white bg-purple-700 hover:bg-purple-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" >
-                  <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
+                    <svg class="w-4 h-4 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
                     <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h11m0 0-4-4m4 4-4 4m-5 3H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h3"/>
-                  </svg>
-                  <span class="ml-2">Se déconnecter</span>
+                    </svg>
+                    <span class="ml-2">Se déconnecter</span>
                 </button>
-              </a>
+                </a>
 
-              <a href="/login" *ngIf="!(isAuth | async)" class="flex items-center lg:order-2">
+                <a href="/login" *ngIf="!(isAuth | async)" class="flex items-center lg:order-2">
                 <button type="button" class="text-white items-center bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" >
-                  <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                    <svg class="w-3.5 h-3.5 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M7 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm2 1H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
-                  </svg>
-                  Se connecter
+                    </svg>
+                    Se connecter
                 </button>
-              </a>
+                </a>
         </div>
 
 
@@ -75,7 +83,6 @@
             <!-- Bubble div -->
             <div *ngFor="let message of listMessages" class="flex items-center gap-2.5 mt-2 mr-2" [ngClass]="{'ml-auto' : message.isUserMessage}">
                 <img class="w-8 h-8 rounded-full" src="https://scontent-cdg4-1.xx.fbcdn.net/v/t39.30808-6/405747864_1598288400978720_1546075625288456852_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=efb6e6&_nc_ohc=3QNWnfSZjFIAX_KA-uY&_nc_ht=scontent-cdg4-1.xx&oh=00_AfDG1garkY90OI9-Q9W8wHFLgDZAKhIg2ThBD5voQ-h_CA&oe=65E6CF18" alt="Jese image">
-                
                 <div class="flex justify-center flex-col">
                     <span *ngIf="!message.isUserMessage" class="text-sm ml-1 text-gray-400 dark:text-white" [ngClass]="{'text-white': message.isUserMessage, 'text-gray-900': !message.isUserMessage}">Luc Dupont</span>
 
@@ -97,11 +104,11 @@
             (emojiSelect)="addEmoji($event)"
             title="Pick your emoji…"
             [darkMode]="false"
-            >                   
+            >
         </emoji-mart>
         <!-- Input section -->
         <div class="relative">
-            
+
             <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
                 <label for="chat" class="sr-only">Your message</label>
                 <div class="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
@@ -131,13 +138,67 @@
                     </button>
                 </div>
             </form>
-           
+
         </div>
-        
-        
+
+
     </div>
-</body>
 
-</html>
+    <div id="newConversationModal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full">
+        <div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+            <!-- Modal content -->
+            <div class="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+                <!-- Modal header -->
+                <div class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">🛸 Nouvelle croisade</h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="newConversationModal">
+                        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                        <span class="sr-only">Fermer</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <form [formGroup]="newConversationForm" (ngSubmit)="newConversation()" class="max-w-sm mx-auto">
+                    <div class="mb-5">
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nom</label>
+                        <input formControlName="name" type="text" name="name" id="name" placeholder="Insérez un titre" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                    </div>
 
+                    <div class="mb-5">
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Utilisateurs</label>
+                        <div class="flex items-start mb-5">
+                            <input formControlName="user" type="text" name="name" id="name" placeholder="Insérez un croisé" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <select (change)="onSelectUser($event)"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option disabled selected>Sélectionner un utilisateur</option>
+                                @for (user of (suggestedUsers | async); track user)
+                                {
+                                    <option value="{{ user.id }}">{{user.username}}</option>
+                                } @empty {
+                                    <p>Pas d'utilisateurs</p>
+                                }
+                            </select>
+                        </div>
+                    </div>
 
+                    <ul *ngIf="selectedUsers.length > 0"  class="max-w-md divide-y divide-gray-200 dark:divide-gray-700">
+                        <li *ngFor="let user of selectedUsers" class="py-3 sm:pb-4">
+                            <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                                <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                    <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                                </div>
+                                <div class="font-medium dark:text-white">
+                                    <p>{{ user.firstname }} {{ user.lastname }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.username }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <button type="submit" class="text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                        <svg class="mr-1 -ml-1 w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+                        Partir en croisade
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

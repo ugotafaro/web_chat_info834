@@ -1,7 +1,7 @@
-import { CommonModule, NgClass, NgFor } from '@angular/common';
+import { CommonModule, NgFor } from '@angular/common';
 import { AfterViewChecked, Component, ElementRef, ViewChild } from '@angular/core';
 import { Message } from '../../message';
-import {FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChatService as ChatSocketService } from '../chat.service';
 import { AuthService } from '../auth.service';
@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { User } from '../../user';
 import { Conversation } from '../../conversation';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-chat',
@@ -28,29 +29,83 @@ export class ChatComponent implements AfterViewChecked {
   messageForm = new FormGroup({
     message : new FormControl('')
   });
+
+  // Used for the new conversation form
+  suggestedUsers: Observable<User[]> = new Observable<User[]>();
+  selectedUsers: User[] = [];
+  newConversationForm = this.formBuilder.group({
+    name: ['', Validators.required],
+    user: [''],
+  })
+
   showEmojiPicker = false;
   set = 'apple';
 
+  constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router, private formBuilder: FormBuilder) {
+    // Call searchUsers$ whenever the user input changes
+    this.newConversationForm.get('user')!.valueChanges.pipe().subscribe({
+      next: (user) => {
+        if (user && user.length >= 3) {
+          this.suggestedUsers = this.authService.searchUsers$(user);
+        } else {
+          this.suggestedUsers = new Observable<User[]>();
+        }
+      },
+      error: (error) => {
+      this.suggestedUsers = new Observable<User[]>();
+      console.error(error);
+      },
+    });
+  }
 
-  constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router) {
-    chatService.messages.subscribe(msg => {
-      this.listMessages.unshift(msg);
+  onSelectUser(event: any): void {
+    // Récupérer l'ID de l'utilisateur sélectionné
+    const selectedId = event.target.value;
+
+    this.suggestedUsers.subscribe(users => {
+      // Trouver l'utilisateur sélectionné
+      const selectedUser = users.find(user => user.id === selectedId);
+      if(!selectedUser) return;
+
+      // Vérifier si l'utilisateur est déjà sélectionnés
+      const alreadySelected = this.selectedUsers.find(user => user.id === selectedId);
+      if (alreadySelected) return;
+
+      // Ajouter l'utilisateur sélectionné à la liste des utilisateurs sélectionnés
+      this.selectedUsers.push(selectedUser);
+    });
+  }
+
+  newConversation() {
+    const name = this.newConversationForm.get('name')!.value??'';
+    this.authService.createConversation(name, this.selectedUsers).subscribe({
+      next: (response) => {
+        console.log(response);
+      },
+      error: (error) => {
+        console.error(error);
+      },
     });
 
 
   }
 
   ngOnInit() {
-  
     this.listMessages = [];
     this.getUserConversations();
     console.log("Liste de conversations : ",this.listConversations);
+
+    this.chatService.connect(this.authService.getUser()!);
+    this.chatService.messages.subscribe(msg => {
+      this.listMessages.unshift(msg);
+    });
+
+    initFlowbite();
   }
 
   addMessage(message: string) {
     let msgObject = new Message(this.listMessages.length + 1, message, new Date().toISOString(), true, 1);
     this.chatService.messages.next(msgObject);
-
   }
 
   toggleEmojiPicker() {
@@ -114,7 +169,7 @@ export class ChatComponent implements AfterViewChecked {
           console.error("Erreur lors de la récupération des conversations :", error);
       }
   );
-    
+
   }
 
   getLastMessage(conversation: Conversation) : Message | null{
@@ -122,11 +177,11 @@ export class ChatComponent implements AfterViewChecked {
       return null;
     }
     return conversation.messages[conversation.messages.length-1];
-    
+
   }
 
   logout() {
-    this.authService.attemptLogout().subscribe({
+    this.authService.attemptLogout$().subscribe({
       next: () => this.router.navigate(['/login']),
       error: (error) => console.error(error),
     });
