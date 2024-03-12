@@ -29,6 +29,15 @@ const get_conversations = async (req, res) => {
     }
 };
 
+const get_user = async (req, res) => {
+  try {
+    const user = await userController.get(req.query);
+    return res.json({ message: 'User retrieved successfully', data: user });
+  } catch (error) {
+    return handleErrors(res, 400, error.message);
+  }
+};
+
 const join_conversation = async (req, res) => {
     try {
       const updatedConversation = await messageController.join_conversation(req.body);
@@ -73,7 +82,7 @@ const search_users = async (req, res) => {
 router.post('/login', authController.login);
 router.post('/signup', authController.signup);
 router.post('/logout', AuthGuard, authController.logout);
-router.get('/user/:id', userController.get);
+router.get('/user', get_user);
 router.get('/search-users', search_users);
 
 // Messages

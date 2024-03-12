@@ -74,14 +74,14 @@ export class AuthService {
   get_conservations(): Observable<any> {
     if (!this.isAuthenticated()) return new Observable();
     // const options = {
-      
+
     //   params: new HttpParams().set('user', this.getUser()!.id)
     // };
     return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`);
   }
 
   getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user/${id}`);
+    return this.http.get<User>(`${this.apiUrl}/user?id=${id}`);
   }
 
 }
