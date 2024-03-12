@@ -23,12 +23,10 @@ const new_message = async (content, sender, conversation) => {
 
     // Vérifiez si la création du message est valide
     try {
-
         let message = new Message({ content, sender, conversation });
         await message.validate();
-
         message = await Message.create(message);
-        return res.json({ message: 'Message created successfully', data: message });
+        return await Message.create(message);
     } catch (error) {
         throw new Error(error.message);
     }
@@ -55,7 +53,7 @@ const get_conversations = async (req, res) => {
 };
 
 const get_conversation = async (req, res) => {
-    let { id } = req.body;
+    let id = req.query.id;
 
     // Vérifiez si les donnés sont correctes
     if (!id) return handleErrors(res, 400, 'Conversation id is required');
