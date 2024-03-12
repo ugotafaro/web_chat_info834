@@ -216,11 +216,11 @@ class ChatWS extends  WS.WebSocketServer {
 
             // Récupérer l'ID des autres utilisateurs dans la conversation
             let others = await Conversation.findById(conversation, 'users');
-            others = others.users.map((user) => user.toString()).filter((user) => user !== ws.user);
+            //others = others.users.map((user) => user.toString()).filter((user) => user !== ws.user);
 
             // Broadcast le message aux autres utilisateurs
             this.clients.forEach((client) => {
-                let shouldSend = client.readyState === ws.OPEN && others.includes(client.user);
+                let shouldSend = client.readyState === ws.OPEN; //&& others.includes(client.user)
                 if (shouldSend) {
                     client.send(JSON.stringify({ action: 'new-message', data: createdMessage }));
                 }

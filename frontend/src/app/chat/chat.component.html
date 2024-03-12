@@ -27,7 +27,7 @@
         </div>
         <div class="relative h-[calc(100% - 110px)] overflow-auto">
 
-            <div class=""> <!-- *ngFor="let conversation of listConversations; track conversation"   -->
+            <div  class="">
                 @for (conversation of listConversations; track conversation) {
                 <div (click)="changeConversation(conversation)"  class="flex hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
                     <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Jese image">
@@ -78,9 +78,9 @@
 
 
         <!-- Bubble section -->
-        <div class="relative flex flex-col-reverse h-[calc(100%-120px)] overflow-y-auto">
+        <div *ngIf="selectedConversation !== undefined"  class="relative flex flex-col-reverse h-[calc(100%-120px)] overflow-y-auto">
             <!-- Bubble div -->
-            <div *ngFor="let message of listMessages" class="flex items-center gap-2.5 mt-2 mr-2" [ngClass]="{'ml-auto' : message.isUserMessage}">
+            <div *ngFor="let message of selectedConversation.messages" class="flex items-center gap-2.5 mt-2 mr-2" [ngClass]="{'ml-auto' : message.isUserMessage}">
                 <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg">
                 <div class="flex justify-center flex-col">
                     <span *ngIf="!message.isUserMessage" class="text-sm ml-1 text-gray-400 dark:text-white" [ngClass]="{'text-white': message.isUserMessage, 'text-gray-900': !message.isUserMessage}">Luc Dupont</span>
@@ -128,8 +128,7 @@
                         <span class="sr-only">Add emoji</span>
 
                     </button>
-                    <textarea blur="onBlur()"
-                    (focus)="onFocus()" formControlName="message" id="chat" rows="1" class="mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Your message..."></textarea>
+                    <textarea blur="onBlur()" (focus)="onFocus()" formControlName="message" id="chat" rows="1" class="mx-4 p-2.5 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Your message..."></textarea>
                         <button type="submit" class="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-gray-600">
                         <svg class="w-5 h-5 rotate-90 rtl:-rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                             <path d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z"/>

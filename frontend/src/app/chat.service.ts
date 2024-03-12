@@ -10,10 +10,12 @@ const CHAT_URL = "ws://localhost:3030";
 export class ChatService {
   public messages: Subject<Message>;
   private wsService: WebsocketService;
+  private ws: Subject<any>;
 
   constructor(wsService: WebsocketService) {
     this.wsService = wsService;
     this.messages = new Subject<Message>();
+    this.ws = new Subject<MessageEvent>();
   }
 
   close() {
@@ -26,28 +28,38 @@ export class ChatService {
     this.wsService = new WebsocketService();
 
     // Connect to the server
-    let ws: Subject<any> = this.wsService.connect(CHAT_URL, user.id);
+    this.ws = this.wsService.connect(CHAT_URL, user.id);
 
     // Create a new observable that will be used to send messages to the server
     this.messages = new Subject<Message>();
 
-    // Handle message reception
-    ws.pipe(
-      // Map the response to a Message
-      map((response: MessageEvent): Message => {
-        let data = JSON.parse(response.data);
-        return new Message(data.id, data.content, data.timestamp, false, data.userIdSender);
-      })
-      // Emit the message to the observable
-      ).subscribe((message: Message) => {
-        this.messages.next(message);
-    });
-
-    // Handle message emission
-    this.messages.subscribe((message: Message) => {
-      ws.next(message);
+    // Handle reception
+    this.ws.subscribe((event: MessageEvent) => {
+      const res = JSON.parse(event.data);
+      console.log("[WS] Received ", res);
+      switch(res.action) {
+        case "new-message":
+          let new_message = new Message(res.data.id, res.data.content, new Date(res.data.createdAt), res.data.sender == user.id, res.data.sender);
+          new_message.conversation = res.data.conversation;
+          this.messages.next(new_message);
+          break;
+        case "new-special-message":
+          break;
+        default:
+          console.log("Unknown action", res.action);
+      }
     });
   }
-  
 
+  sendMessage(message: Message) {
+    const newMessageData = {
+      action: 'new-message',
+      data: {
+        content: message.content,
+        conversation: message.conversation,
+      }
+    };
+
+    this.ws.next(newMessageData);
+  }
 }

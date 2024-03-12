@@ -12,7 +12,6 @@ export class WebsocketService {
   public connect(url: string | URL, user: string): Subject<MessageEvent> {
     if (!this.subject) {
       this.subject = this.create(url, user);
-      console.log("[WS] Connected to " + url);
     }
     return this.subject;
   }
@@ -24,15 +23,22 @@ export class WebsocketService {
       this.ws.onmessage = obs.next.bind(obs);
       this.ws.onerror = obs.error.bind(obs);
       this.ws.onclose = obs.complete.bind(obs);
+      this.ws.onopen = () => {
+        console.log("[WS] Connected to " + url);
+        this.ws.send(JSON.stringify({ action: "set-user", data: { user: user }}));
+      };
+
       return this.ws.close.bind(this.ws);
     });
 
     let observer = {
-      next: (data: Object) => {
+      next: (data: any) => {
         if (this.ws.readyState === WebSocket.OPEN) {
-          this.ws.send(JSON.stringify({...data, user}));
+          console.log("[WS] Sending ", data);
+          if(data.action === "new-message") data.data.sender = user;
+          this.ws.send(JSON.stringify(data));
         } else {
-          console.log("[WS] Not connected to " + url);
+          console.log("[WS] Can't send", data);
         }
       }
     };
@@ -41,7 +47,6 @@ export class WebsocketService {
 
   public close() {
     if (this.subject) {
-      this.ws.close();
       this.subject.complete();
       console.log("[WS] Disconnected");
     }

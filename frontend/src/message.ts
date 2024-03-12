@@ -4,6 +4,7 @@ export class Message {
     timestamp: Date;
     isUserMessage: boolean;
     userIdSender: number;
+    conversation: number | null;
 
     constructor(id: number, content: string, timestamp: Date, isUserMessage: boolean, userIdSender: number) {
         this.id = id;
@@ -11,5 +12,6 @@ export class Message {
         this.timestamp = timestamp;
         this.isUserMessage = isUserMessage;
         this.userIdSender = userIdSender;
+        this.conversation = null;
     }
 }

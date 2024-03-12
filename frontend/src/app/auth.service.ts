@@ -5,7 +5,6 @@ import { User } from '../user';
 import { ChatService } from './chat.service';
 import { Conversation } from '../conversation';
 import { Message } from '../message';
-import { response } from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -112,7 +111,6 @@ export class AuthService {
 
   private mapMessages(data: any): Message[] {
     const messages = data || [];
-    console.log(messages);
 
     return messages.map((message: any) => {
       return new Message(message._id, message.content, new Date(message.createdAt), message.sender === this.getUser()!.id, message.sender);

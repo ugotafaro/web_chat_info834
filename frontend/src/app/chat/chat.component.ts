@@ -23,7 +23,7 @@ export class ChatComponent implements AfterViewChecked {
 
 
   @ViewChild('chatSection') chatSection!: ElementRef;
-  listMessages!: Message[];
+  selectedConversation!: Conversation;
   listConversations : Conversation[] = [];
   messageForm = new FormGroup({
     message : new FormControl('')
@@ -51,8 +51,8 @@ export class ChatComponent implements AfterViewChecked {
         }
       },
       error: (error) => {
-      this.suggestedUsers = new Observable<User[]>();
-      console.error(error);
+        this.suggestedUsers = new Observable<User[]>();
+        console.error(error);
       },
     });
   }
@@ -90,20 +90,14 @@ export class ChatComponent implements AfterViewChecked {
   }
 
   ngOnInit() {
-    this.listMessages = [];
     this.getUserConversations();
 
     this.chatService.connect(this.authService.getUser()!);
     this.chatService.messages.subscribe(msg => {
-      this.listMessages.unshift(msg);
+      this.selectedConversation.messages.unshift(msg);
     });
 
     initFlowbite();
-  }
-
-  addMessage(message: string) {
-    let msgObject = new Message(this.listMessages.length + 1, message, new Date(), true, 1);
-    this.chatService.messages.next(msgObject);
   }
 
   toggleEmojiPicker() {
@@ -127,8 +121,11 @@ export class ChatComponent implements AfterViewChecked {
 
 
   onSubmit() {
-    const message = this.messageForm.get('message')!.value || null;
-    this.addMessage(message!);
+    let text = this.messageForm.get('message')!.value || null;
+    if (!text) return;
+    let msgObject = new Message(0, text, new Date(), true, 1);
+    msgObject.conversation = this.selectedConversation.id;
+    this.chatService.sendMessage(msgObject);
     this.messageForm.reset();
   }
 
@@ -159,7 +156,7 @@ export class ChatComponent implements AfterViewChecked {
   }
 
   changeConversation(conversation: Conversation) {
-    this.listMessages = conversation.messages;
+    this.selectedConversation = conversation;
   }
 
   logout() {
