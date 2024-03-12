@@ -26,8 +26,7 @@
                     <div class="ml-3">
                         <h2 class=" font-semibold">{{conversation.name}}</h2>
                         <div class="flex justify-between text-gray-700">
-                            <p *ngIf="getLastMessage(conversation)">{{getLastMessage(conversation)?.userIdSender + ': ' + getLastMessage(conversation)?.content}}</p>
-                            
+                            <p class="text-gray-600">{{getLastMessage(conversation).content}}</p>
                         </div>
                     </div>
                 </div>
