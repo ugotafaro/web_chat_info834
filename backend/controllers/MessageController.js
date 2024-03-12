@@ -87,7 +87,8 @@ const new_conversation = async (data) => {
 
     // Créer la conversation
     try {
-        return await Conversation.create({ name, users });
+        let conv = await Conversation.create({ name, users });
+        return await Chat.findOne({ _id: conv._id });
     } catch (error) {
         throw new Error(error.message);
     }

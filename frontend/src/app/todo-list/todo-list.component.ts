@@ -30,6 +30,6 @@ export class TodoListComponent {
   }
 
   sendMsg() {
-    this.chatService.messages.next(new Message(0, "Hello from the frontend", new Date().toISOString(), true, 0));
+    this.chatService.messages.next(new Message(0, "Hello from the frontend", new Date(), true, 0));
   }
 }

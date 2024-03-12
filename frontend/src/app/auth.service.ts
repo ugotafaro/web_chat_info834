@@ -3,6 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
 import { ChatService } from './chat.service';
+import { Conversation } from '../conversation';
+import { Message } from '../message';
+import { response } from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -70,25 +73,22 @@ export class AuthService {
     return this.user.getValue();
   }
 
-  get_conservations(): Observable<any> {
+  get_conservations(): Observable<Conversation[]> {
     if (!this.isAuthenticated()) return new Observable();
-    // const options = {
-
-    //   params: new HttpParams().set('user', this.getUser()!.id)
-    // };
-    return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`);
-  }
-
-
-  searchUsers$(query: string): Observable<User[]> {
-    return this.http.get<any>(`${this.apiUrl}/search-users?search=${query}`).pipe(
-      map(response => this.mapUsers(response))
+    return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`).pipe(
+      map(response => this.mapConversations(response))
     );
   }
 
-  private mapUsers(response: any): User[] {
+  searchUsers$(query: string): Observable<User[]> {
+    return this.http.get<any>(`${this.apiUrl}/search-users?search=${query}`).pipe(
+      map(response => this.mapUsers(response.data))
+    );
+  }
+
+  private mapUsers(data: any): User[] {
     // Assuming users are returned in the 'data' field of the response
-    const usersData = response.data || [];
+    const usersData = data || [];
 
     // Map each user in the 'data' array to the User model
     return usersData.map((user: any) => {
@@ -100,6 +100,22 @@ export class AuthService {
         firstname: user.firstname || '',
         lastname: user.lastname || '',
       };
+    });
+  }
+
+  private mapConversations(res: any): Conversation[] {
+    const conversations = res.data || [];
+    return conversations.map(
+      (item: any) => new Conversation(item._id, item.name, this.mapUsers(item.users), this.mapMessages(item.messages))
+    )
+  }
+
+  private mapMessages(data: any): Message[] {
+    const messages = data || [];
+    console.log(messages);
+
+    return messages.map((message: any) => {
+      return new Message(message._id, message.content, new Date(message.createdAt), message.sender === this.getUser()!.id, message.sender);
     });
   }
 

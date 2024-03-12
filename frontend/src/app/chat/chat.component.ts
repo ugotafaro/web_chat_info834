@@ -10,7 +10,6 @@ import { Observable, map } from 'rxjs';
 import { User } from '../../user';
 import { Conversation } from '../../conversation';
 import { initFlowbite } from 'flowbite';
-
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -25,7 +24,7 @@ export class ChatComponent implements AfterViewChecked {
 
   @ViewChild('chatSection') chatSection!: ElementRef;
   listMessages!: Message[];
-  listConversations : Conversation[]= [];
+  listConversations : Conversation[] = [];
   messageForm = new FormGroup({
     message : new FormControl('')
   });
@@ -93,7 +92,6 @@ export class ChatComponent implements AfterViewChecked {
   ngOnInit() {
     this.listMessages = [];
     this.getUserConversations();
-    console.log("Liste de conversations : ",this.listConversations);
 
     this.chatService.connect(this.authService.getUser()!);
     this.chatService.messages.subscribe(msg => {
@@ -104,7 +102,7 @@ export class ChatComponent implements AfterViewChecked {
   }
 
   addMessage(message: string) {
-    let msgObject = new Message(this.listMessages.length + 1, message, new Date().toISOString(), true, 1);
+    let msgObject = new Message(this.listMessages.length + 1, message, new Date(), true, 1);
     this.chatService.messages.next(msgObject);
   }
 
@@ -145,39 +143,23 @@ export class ChatComponent implements AfterViewChecked {
   }
 
   getUserConversations() {
-    this.authService.get_conservations().pipe(
-      map(data => {
-          data = data.data;
-          if (Array.isArray(data)) {
-              return data.map(conversationData => new Conversation(
-                  conversationData._id,
-                  conversationData.name,
-                  conversationData.content,
-                  conversationData.users,
-                  conversationData.messages
-              ));
-          } else {
-              throw new Error("Les données reçues ne sont pas un tableau.");
-          }
-      })
-  ).subscribe(
+    this.authService.get_conservations().pipe().subscribe(
       conversations => {
           this.listConversations.unshift(...conversations);
-          console.log("Liste de conversations mise à jour :", this.listConversations);
+          this.changeConversation(this.listConversations[0]);
       },
       error => {
           console.error("Erreur lors de la récupération des conversations :", error);
       }
-  );
-
+    );
   }
 
   getLastMessage(conversation: Conversation) : Message | null{
-    if (conversation.messages.length === 0) {
-      return null;
-    }
     return conversation.messages[conversation.messages.length-1];
+  }
 
+  changeConversation(conversation: Conversation) {
+    this.listMessages = conversation.messages;
   }
 
   logout() {
