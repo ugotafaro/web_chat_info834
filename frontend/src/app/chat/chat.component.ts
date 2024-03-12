@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewChecked, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Message } from '../../message';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PickerModule } from '@ctrl/ngx-emoji-mart';
@@ -38,10 +38,6 @@ export class ChatComponent implements AfterViewChecked {
   set = 'apple';
 
   constructor(private chatService: ChatSocketService, private authService: AuthService, private router: Router, private formBuilder: FormBuilder) {
-    chatService.messages.subscribe(msg => {
-      this.listMessages.unshift(msg);
-    });
-
     // Call searchUsers$ whenever the user input changes
     this.newConversationForm.get('user')!.valueChanges.pipe().subscribe({
       next: (user) => {
@@ -90,6 +86,11 @@ export class ChatComponent implements AfterViewChecked {
 
   ngOnInit() {
     this.listMessages = [];
+
+    this.chatService.connect(this.authService.getUser()!);
+    this.chatService.messages.subscribe(msg => {
+      this.listMessages.unshift(msg);
+    });
   }
 
   addMessage(message: string) {

@@ -21,7 +21,6 @@ export class AuthService {
       map(response => {
         localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
-        this.chatService.connect(response.user);
       })
     );
   }
