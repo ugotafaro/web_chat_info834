@@ -1,7 +1,18 @@
 // Helper function
-const handleErrors = (res, errorStatusCode, errorMessage) => {
-    console.error(`[ERREUR ${errorStatusCode || 500}] ${errorMessage || 'Internal Server Error'}`);
-    return res.status(errorStatusCode || 500).json({ error: errorMessage || 'Internal Server Error'});
+const handleErrors = (res, status, error) => {
+    error = error || 'Internal Server Error';
+    status = status || 500;
+
+    console.error(`[ERREUR ${status}] ${error}`);
+    return res.status(status).json({error});
 };
 
-module.exports = { handleErrors }
+const handleLoginErrors = (res, status, error, fails, failSpan, maxAttempts) => {
+    status = status || 500;
+    error = error || 'Internal Server Error';
+
+    console.error(`[ERREUR ${status}] ${error}`);
+    return res.status(status).json({ error, fails, failSpan, maxAttempts});
+}
+
+module.exports = { handleErrors, handleLoginErrors }

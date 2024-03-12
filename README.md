@@ -1,7 +1,7 @@
 # INFO834 - ✝Messagé
 Une application de web chat en temps réel.
 
-Coté backend : Node fournit une API REST avec Express, lié à une base de données MongoDB et à Redis.
+Coté backend : Node fournit une API REST avec Express, ainsi qu'un système de web socket pour diffuser les messages en temps-réel. Tout est lié à une base de données MongoDB et à un cache Redis.
 
 Coté frontend : Angular fournit le frontend et accède à l'API.
 
@@ -25,6 +25,8 @@ Pensez à vous connectez au VPN pour avoir accès à la base Mongos
 Commandes pour tester redis, à lancer sur le client Redis
 `FLUSHDB` pour vider les données
 `KEYS *` pour voir toutes les données
+`HGETALL user:65ddc1ac007f09cc725ad3a6` pour récupérer les infos d'un utilisateur
+`DEL user:65ddc1ac007f09cc725ad3a6` pour déconnecter un utilisateur
 
 # MongoDB
 Commandes pour tester MongoDB, à lancer sur le client MongoDB
