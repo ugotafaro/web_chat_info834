@@ -29,6 +29,15 @@ const get_conversations = async (req, res) => {
     }
 };
 
+const get_user = async (req, res) => {
+  try {
+    const user = await userController.get(req.query);
+    return res.json({ message: 'User retrieved successfully', data: user });
+  } catch (error) {
+    return handleErrors(res, 400, error.message);
+  }
+};
+
 const join_conversation = async (req, res) => {
     try {
       const updatedConversation = await messageController.join_conversation(req.body);

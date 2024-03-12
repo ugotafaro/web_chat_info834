@@ -1,11 +1,17 @@
 const User = require('../models/UserModel');
-const { handleErrors } = require('../util');
+const { ObjectId } = require('mongodb');
 
-const get = (req, res) => {
+const get = async (data) => {
+    let { id } = data;
+
+    if (!id) throw new Error('User ID is required');
+    if (!ObjectId.isValid(id)) throw new Error('Invalid user ID');
+    id = new ObjectId(id);
+
     // Check if user is the same as the one in the token
-    //if (req.user.id !== req.params.id) return handleErrors(res, 403, 'Forbidden');
+    // if (req.user.id !== req.params.id) return handleErrors(res, 403, 'Forbidden');
 
-    res.json({ user:req.user });
+    return await User.find({ _id: id },"-password");
 };
 
 const search_users = async (data) => {
