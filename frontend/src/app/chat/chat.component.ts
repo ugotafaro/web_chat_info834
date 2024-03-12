@@ -8,6 +8,7 @@ import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { User } from '../../user';
+import { initFlowbite } from 'flowbite';
 
 @Component({
   selector: 'app-chat',
@@ -91,6 +92,8 @@ export class ChatComponent implements AfterViewChecked {
     this.chatService.messages.subscribe(msg => {
       this.listMessages.unshift(msg);
     });
+
+    initFlowbite();
   }
 
   addMessage(message: string) {
