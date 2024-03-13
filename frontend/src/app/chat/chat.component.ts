@@ -167,6 +167,13 @@ export class ChatComponent implements AfterViewChecked {
     )
   }
 
+  sortMessages(messages: Message[]) {
+    
+    messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    return messages;
+  
+  }
+
   logout() {
     this.authService.attemptLogout$().subscribe({
       error: (error) => console.error(error),
