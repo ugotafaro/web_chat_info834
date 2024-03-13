@@ -228,27 +228,31 @@ class ChatWS extends  WS.WebSocketServer {
                 }
             });
 
-            // Check si le message contient des mots spéciaux
-            if (content === 'ping') {
-                return ws.send(JSON.stringify({ action: 'new-special-message', content: 'pong' }));
-            }
-
-            // Check si le message finit par 'quoi'
-            let quoiWords = ['quoi', 'quoi?', 'quoi ?', 'quoi !', 'quoi !?', 'quoi ! ?']
-            if (quoiWords.some((word) => content.endsWith(word))) {
-                return ws.send(JSON.stringify({ content: 'feur' }));
-            }
-
-            // Check si le message finit par un mot divin 🙏 Amen
-            let divineWords = ['st', 'saint', 'sein', 'sin', 'sain', 'saints']
-            let divineSaints = ['tropez','glé','tre','crusté','doux','jecter','carné','cope','port-export','refait','toxiqué','con-pétant','gurgite','primante','razin', 'plomb-95', 'pagnan', 'pathoche', 'ture', 'secte', 'clinaison', 'fusion']
-            if (divineWords.some((word) => content.endsWith(word))) {
-                // Récupérer un saint aléatoire
-                let saint = divineSaints[Math.floor(Math.random() * divineSaints.length)];
-                return ws.send(JSON.stringify({ action: 'new-special-message', content: `✝🙏 Saint-${saint} 🙏✝` }));
-            }
+            this.specialMessageHandling(ws, content);
         } catch (error) {
             return ws.send(JSON.stringify({ error: error.message }));
+        }
+    }
+
+    specialMessageHandling(ws, content) {
+        // Check si le message contient des mots spéciaux
+        if (content === 'ping') {
+            return ws.send(JSON.stringify({ action: 'new-special-message', data: { content: 'pong' } }));
+        }
+
+        // Check si le message finit par 'quoi'
+        let quoiWords = ['quoi', 'quoi?', 'quoi ?', 'quoi !', 'quoi !?', 'quoi ! ?']
+        if (quoiWords.some((word) => content.endsWith(word))) {
+            return ws.send(JSON.stringify({ action: 'new-special-message', data: { content: 'feur' } }));
+        }
+
+        // Check si le message finit par un mot divin 🙏 Amen
+        let divineWords = ['st', 'saint', 'sein', 'sin', 'sain', 'saints']
+        let divineSaints = ['tropez','glé','tre','crusté','doux','jecter','carné','cope','port-export','refait','toxiqué','con-pétant','gurgite','primante','razin', 'plomb-95', 'pagnan', 'pathoche', 'ture', 'secte', 'clinaison', 'fusion']
+        if (divineWords.some((word) => content.endsWith(word))) {
+            // Récupérer un saint aléatoire
+            let saint = divineSaints[Math.floor(Math.random() * divineSaints.length)];
+            return ws.send(JSON.stringify({ action: 'new-special-message', data: { content: `✝🙏 Saint-${saint} 🙏✝` }}));
         }
     }
 }

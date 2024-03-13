@@ -64,12 +64,18 @@ export class ChatService {
 
         case "get-conversations":
           let conversations = res.data.map((conversation: any) => {
-            return new Conversation(conversation._id, conversation.name, this.mapUsers(conversation.users), this.mapMessages(conversation.messages));
+            let convObj = new Conversation(conversation._id, conversation.name, this.mapUsers(conversation.users), this.mapMessages(conversation.messages));
+            convObj.messages.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+            return convObj;
           });
           this.conversations.next(conversations);
           break;
+
         case "new-special-message":
+          let text = res.data.content;
+          // Show pop up here
           break;
+
         default:
           console.log("Unknown action", res.action);
       }
