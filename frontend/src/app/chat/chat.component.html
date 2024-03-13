@@ -28,7 +28,7 @@
         <div class="relative h-[calc(100% - 110px)] overflow-auto">
 
             <div  class="">
-                @for (conversation of listConversations; track conversation) {
+                @for (conversation of (conversations | async); track conversation) {
                 <div (click)="changeConversation(conversation)"  class="flex hover:bg-gray-200 p-5 m-1 rounded-md cursor-pointer">
                     <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg" alt="Jese image">
                     <div class="ml-3">
@@ -80,13 +80,13 @@
         <!-- Bubble section -->
         <div *ngIf="selectedConversation !== undefined"  class="relative flex flex-col-reverse h-[calc(100%-120px)] overflow-y-auto">
             <!-- Bubble div -->
-            <div *ngFor="let message of selectedConversation.messages" class="flex items-center gap-2.5 mt-2 mr-2" [ngClass]="{'ml-auto' : message.isUserMessage}">
+            <div *ngFor="let message of selectedConversation.messages" class="flex items-center gap-2.5 mt-2 mr-2" [ngClass]="{'ml-auto' : isUserMessage(message)}">
                 <img class="w-12 h-12 rounded-full" src="https://i.pinimg.com/736x/c0/27/be/c027bec07c2dc08b9df60921dfd539bd.jpg">
                 <div class="flex justify-center flex-col">
-                    <span *ngIf="!message.isUserMessage" class="text-sm ml-1 text-gray-400 dark:text-white" [ngClass]="{'text-white': message.isUserMessage, 'text-gray-900': !message.isUserMessage}">{{ message.userIdSender }}</span>
+                    <span *ngIf="!isUserMessage(message)" class="text-sm ml-1 text-gray-400 dark:text-white" [ngClass]="{'text-white': isUserMessage(message), 'text-gray-900': !isUserMessage(message)}">{{ message.userIdSender }}</span>
 
-                    <div class="flex flex-col w-full max-w-[320px] leading-1.5 px-3 mt-2 border-gray-200 rounded-xl rounded-xl dark:bg-gray-700" [ngClass]="{'bg-purple-700': message.isUserMessage, 'bg-gray-100': !message.isUserMessage}">
-                        <p class="text-sm font-normal py-2.5 dark:text-white" [ngClass]="{'text-white': message.isUserMessage, 'text-gray-900': !message.isUserMessage}">{{ message.content }}</p>
+                    <div class="flex flex-col w-full max-w-[320px] leading-1.5 px-3 mt-2 border-gray-200 rounded-xl rounded-xl dark:bg-gray-700" [ngClass]="{'bg-purple-700': isUserMessage(message), 'bg-gray-100': !isUserMessage(message)}">
+                        <p class="text-sm font-normal py-2.5 dark:text-white" [ngClass]="{'text-white': isUserMessage(message), 'text-gray-900': !isUserMessage(message)}">{{ message.content }}</p>
                     </div>
 
                     <span class="text-sm font-normal text-gray-400 dark:text-gray-400">{{ message.timestamp | date:'hh:mm' }}</span>

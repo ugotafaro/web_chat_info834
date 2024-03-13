@@ -48,7 +48,7 @@ export class WebsocketService {
   public close() {
     if (this.subject) {
       this.subject.complete();
-      console.log("[WS] Disconnected");
+      this.ws.close();
     }
   }
 }

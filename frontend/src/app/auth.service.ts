@@ -113,7 +113,7 @@ export class AuthService {
     const messages = data || [];
 
     return messages.map((message: any) => {
-      return new Message(message._id, message.content, new Date(message.createdAt), message.sender === this.getUser()!.id, message.sender);
+      return new Message(message._id, message.content, new Date(message.createdAt), message.sender);
     });
   }
 

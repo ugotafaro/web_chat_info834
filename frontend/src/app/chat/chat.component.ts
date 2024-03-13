@@ -6,7 +6,7 @@ import { PickerModule } from '@ctrl/ngx-emoji-mart';
 import { ChatService as ChatSocketService } from '../chat.service';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { User } from '../../user';
 import { Conversation } from '../../conversation';
 import { initFlowbite } from 'flowbite';
@@ -24,7 +24,7 @@ export class ChatComponent implements AfterViewChecked {
 
   @ViewChild('chatSection') chatSection!: ElementRef;
   selectedConversation!: Conversation;
-  listConversations : Conversation[] = [];
+  conversations: Observable<Conversation[]> = this.chatService.getConversations$();
   messageForm = new FormGroup({
     message : new FormControl('')
   });
@@ -55,6 +55,23 @@ export class ChatComponent implements AfterViewChecked {
         console.error(error);
       },
     });
+
+    this.conversations.subscribe({
+      next: (conversations) => {
+        if(this.selectedConversation === undefined && conversations.length > 0) {
+          this.selectedConversation = conversations[0];
+        }
+        console.log("Conversations", conversations);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+    });
+  }
+
+  ngOnInit() {
+    this.chatService.connect(this.authService.getUser()!);
+    initFlowbite();
   }
 
   onSelectUser(event: any): void {
@@ -75,29 +92,13 @@ export class ChatComponent implements AfterViewChecked {
     });
   }
 
+  isUserMessage(message: Message) {
+    return message.userIdSender.toString() === this.authService.getUser()!.id;
+  }
   newConversation() {
     const name = this.newConversationForm.get('name')!.value??'';
-    this.authService.createConversation(name, this.selectedUsers).subscribe({
-      next: (response) => {
-        console.log(response);
-      },
-      error: (error) => {
-        console.error(error);
-      },
-    });
-
-
-  }
-
-  ngOnInit() {
-    this.getUserConversations();
-
-    this.chatService.connect(this.authService.getUser()!);
-    this.chatService.messages.subscribe(msg => {
-      this.selectedConversation.messages.unshift(msg);
-    });
-
-    initFlowbite();
+    const users = this.selectedUsers.concat([this.authService.getUser()!]);
+    this.chatService.createConversation(name, users);
   }
 
   toggleEmojiPicker() {
@@ -123,7 +124,7 @@ export class ChatComponent implements AfterViewChecked {
   onSubmit() {
     let text = this.messageForm.get('message')!.value || null;
     if (!text) return;
-    let msgObject = new Message(0, text, new Date(), true, 1);
+    let msgObject = new Message(0, text, new Date(), 1);
     msgObject.conversation = this.selectedConversation.id;
     this.chatService.sendMessage(msgObject);
     this.messageForm.reset();
@@ -137,18 +138,6 @@ export class ChatComponent implements AfterViewChecked {
     try {
       this.chatSection.nativeElement.scrollTop = this.chatSection.nativeElement.scrollHeight;
     } catch(err) { }
-  }
-
-  getUserConversations() {
-    this.authService.get_conservations().pipe().subscribe(
-      conversations => {
-          this.listConversations.unshift(...conversations);
-          this.changeConversation(this.listConversations[0]);
-      },
-      error => {
-          console.error("Erreur lors de la récupération des conversations :", error);
-      }
-    );
   }
 
   getLastMessage(conversation: Conversation) : Message | null{
