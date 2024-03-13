@@ -156,6 +156,13 @@ export class ChatComponent implements AfterViewChecked {
     )
   }
 
+  getUserName(id: any) {
+    // Get the username from the current conversation using the id
+    id = id.toString();
+    let user = this.selectedConversation.users.find(user => user.id === id);
+    return user?.firstname + " " + user?.lastname || user?.username || "Unknown";
+  }
+
   logout() {
     this.authService.attemptLogout$().subscribe({
       error: (error) => console.error(error),
