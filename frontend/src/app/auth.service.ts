@@ -3,6 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 import { User } from '../user';
 import { ChatService } from './chat.service';
+import ObjectID from 'bson-objectid';
+
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,20 @@ export class AuthService {
   private user: BehaviorSubject<User | null>;
 
   constructor(private http: HttpClient, private chatService: ChatService) {
-    this.user = new BehaviorSubject<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
+    const storedUser = localStorage.getItem('user');
+    // Vérifie si storedUser n'est pas null ou undefined
+    if (storedUser) {
+        try {
+            // Convertit la chaîne JSON en objet JavaScript
+            const parsedUser = JSON.parse(storedUser);
+            this.user = new BehaviorSubject<User | null>(parsedUser);
+        } catch (error) {
+            console.error('Erreur lors de l\'analyse de l\'utilisateur stocké :', error);
+            this.user = new BehaviorSubject<User | null>(null);
+        }
+    } else {
+        this.user = new BehaviorSubject<User | null>(null);
+    }
   }
 
   attemptLogin(loginInfo: Object): Observable<any> {
@@ -80,8 +95,8 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/get-conversations?user=${this.getUser()!.id}`);
   }
 
-  getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/user/${id}`);
+  getUserById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user?id=${id}`);
   }
 
 }

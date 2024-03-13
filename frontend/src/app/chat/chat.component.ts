@@ -135,6 +135,14 @@ export class ChatComponent implements AfterViewChecked {
     
   }
 
+  getUserById(id: string) {
+    this.authService.getUserById(id)!.subscribe(
+      data => {
+        return data.data;
+      }
+    )
+  }
+
  
   logout() {
     this.authService.attemptLogout().subscribe({

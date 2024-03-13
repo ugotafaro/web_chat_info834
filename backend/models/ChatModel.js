@@ -4,6 +4,7 @@ const Schema = mongoose.Schema;
 const chatsSchema = new Schema({
   _id: mongoose.Types.ObjectId,
   name: String,
+
   users: [
     {
       _id: mongoose.Types.ObjectId,
@@ -21,5 +22,4 @@ const chatsSchema = new Schema({
 });
 
 const Chat = mongoose.model('Chat', chatsSchema);
-
 module.exports = Chat;
