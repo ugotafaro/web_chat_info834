@@ -182,10 +182,10 @@ class ChatWS extends  WS.WebSocketServer {
         }
 
         // Vérifier si l'utilisateur est connecté sur Redis
-        let exists = await client.exists(`user:${user}`);
-        if (exists === 0) {
-            return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
-        }
+        // let exists = await client.exists(`user:${user}`);
+        // if (exists === 0) {
+        //     return ws.send(JSON.stringify({ error: 'User isn\'t logged in' }));
+        // }
 
         // Vérifier si l'utilisateur n'a pas déjà une connexion websocket
         for (let client of this.clients) {
@@ -212,15 +212,17 @@ class ChatWS extends  WS.WebSocketServer {
         // Créer le message et broadcaster
         try {
             // Créer le message avec le controller
-            const createdMessage = await messageController.new_message({ ...data, user: ws.user });
+            const createdMessage = await messageController.new_message({ ...data, sender: ws.user });
 
             // Récupérer l'ID des autres utilisateurs dans la conversation
             let others = await Conversation.findById(conversation, 'users');
-            //others = others.users.map((user) => user.toString()).filter((user) => user !== ws.user);
+            others = others.users.map((user) => user.toString());
 
             // Broadcast le message aux autres utilisateurs
+            console.log('Broadcasting to', others);
             this.clients.forEach((client) => {
-                let shouldSend = client.readyState === ws.OPEN; //&& others.includes(client.user)
+                console.log('Client', client.user);
+                let shouldSend = client.readyState === ws.OPEN && others.includes(client.user);
                 if (shouldSend) {
                     client.send(JSON.stringify({ action: 'new-message', data: createdMessage }));
                 }
