@@ -50,7 +50,7 @@ export class AuthService {
   attemptSignup(signupInfo: Object): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/signup`, signupInfo).pipe(
       map(response => {
-        localStorage.setItem('user', response.user);
+        localStorage.setItem('user', JSON.stringify(response.user));
         this.user.next(response.user);
       })
     );
