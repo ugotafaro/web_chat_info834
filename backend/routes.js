@@ -92,7 +92,7 @@ const new_message = async (req, res) => {
 router.post('/login', authController.login);
 router.post('/signup', authController.signup);
 router.post('/logout', AuthGuard, authController.logout);
-router.get('/user/:id', userController.get);
+router.get('/user', get_user);
 router.get('/search-users', search_users);
 
 // Messages
