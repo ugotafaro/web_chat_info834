@@ -12,3 +12,8 @@
   background: gray;
   border-radius: 10px;
 }
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-duration: 0.5s;
+}
