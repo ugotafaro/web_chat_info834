@@ -10,17 +10,18 @@ import { Observable } from 'rxjs';
 import { User } from '../../user';
 import { Conversation } from '../../conversation';
 import { initFlowbite } from 'flowbite';
+import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule, PickerModule, NgFor],
+  imports: [CommonModule,ReactiveFormsModule, PickerModule, NgFor, MatCardModule],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss'
 })
 export class ChatComponent implements AfterViewChecked {
   isAuth: Observable<boolean> = this.authService.isAuthenticated$();
   user: Observable<User | null> = this.authService.getUser$();
-
+  showPopup: boolean = true;
 
   @ViewChild('chatSection') chatSection!: ElementRef;
   selectedConversation!: Conversation;
@@ -72,7 +73,11 @@ export class ChatComponent implements AfterViewChecked {
   ngOnInit() {
     this.chatService.connect(this.authService.getUser()!);
     initFlowbite();
+    setTimeout(() => {
+      this.showPopup = false;
+    }, 5000); // 5000 milliseconds = 5 seconds
   }
+  
 
   onSelectUser(event: any): void {
     // Récupérer l'ID de l'utilisateur sélectionné
