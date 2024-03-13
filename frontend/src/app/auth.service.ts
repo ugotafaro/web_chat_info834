@@ -117,6 +117,11 @@ export class AuthService {
     });
   }
 
+  getUserById(id: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user?id=${id}`);
+  }
+
+
   createConversation(name: string, users: User[]): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/new-conversation`,
       {
