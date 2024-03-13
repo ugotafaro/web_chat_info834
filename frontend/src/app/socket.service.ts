@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable, Observer, Subject } from 'rxjs';
-import { User } from '../user';
 
 @Injectable()
 export class WebsocketService {

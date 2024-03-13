@@ -48,6 +48,7 @@ export class ChatService {
           this.conversations.next(this.conversations.getValue().map((conversation) => {
             if (conversation.id === res.data.conversation) {
               conversation.messages = [new_message, ...conversation.messages];
+              conversation.messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
             }
             return conversation;
           }));
@@ -60,6 +61,7 @@ export class ChatService {
           let updatedConversations = [...currentConversations, new_conversation];
           this.conversations.next(updatedConversations);
           break;
+
         case "get-conversations":
           let conversations = res.data.map((conversation: any) => {
             return new Conversation(conversation._id, conversation.name, this.mapUsers(conversation.users), this.mapMessages(conversation.messages));
