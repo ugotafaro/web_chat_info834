@@ -167,7 +167,17 @@ class ChatWS extends  WS.WebSocketServer {
         // Créer la conversation
         try {
             let newConversation = await messageController.new_conversation(data);
-            return ws.send(JSON.stringify({ action: 'new-conversation', data: newConversation }));
+
+            // Récupérer l'ID des autres utilisateurs dans la conversation
+            let others = newConversation.users.map((user) => user._id.toString());
+
+            // Broadcast le message aux autres utilisateurs
+            this.clients.forEach((client) => {
+                let shouldSend = client.readyState === ws.OPEN && others.includes(client.user);
+                if (shouldSend) {
+                    client.send(JSON.stringify({ action: 'new-conversation', data: newConversation }));
+                }
+            });
         } catch (error) {
             return ws.send(JSON.stringify({ error: error.message }));
         }
@@ -219,9 +229,7 @@ class ChatWS extends  WS.WebSocketServer {
             others = others.users.map((user) => user.toString());
 
             // Broadcast le message aux autres utilisateurs
-            console.log('Broadcasting to', others);
             this.clients.forEach((client) => {
-                console.log('Client', client.user);
                 let shouldSend = client.readyState === ws.OPEN && others.includes(client.user);
                 if (shouldSend) {
                     client.send(JSON.stringify({ action: 'new-message', data: createdMessage }));

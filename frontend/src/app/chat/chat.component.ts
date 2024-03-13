@@ -24,7 +24,7 @@ export class ChatComponent implements AfterViewChecked {
 
   @ViewChild('chatSection') chatSection!: ElementRef;
   selectedConversation!: Conversation;
-  conversations: Observable<Conversation[]> = this.chatService.getConversations$();
+  conversations: Observable<Conversation[]>;
   messageForm = new FormGroup({
     message : new FormControl('')
   });
@@ -32,6 +32,7 @@ export class ChatComponent implements AfterViewChecked {
   // Used for the new conversation form
   suggestedUsers: Observable<User[]> = new Observable<User[]>();
   selectedUsers: User[] = [];
+  newConversationCustomErrorMessage = '';
   newConversationForm = this.formBuilder.group({
     name: ['', Validators.required],
     user: [''],
@@ -56,21 +57,21 @@ export class ChatComponent implements AfterViewChecked {
       },
     });
 
+    this.conversations = this.chatService.getConversations$();
     this.conversations.subscribe({
       next: (conversations) => {
         if(this.selectedConversation === undefined && conversations.length > 0) {
           this.selectedConversation = conversations[0];
         }
-        console.log("Conversations", conversations);
       },
       error: (error) => {
         console.error(error);
       },
     });
+    this.chatService.connect(this.authService.getUser()!);
   }
 
   ngOnInit() {
-    this.chatService.connect(this.authService.getUser()!);
     initFlowbite();
   }
 
@@ -95,7 +96,8 @@ export class ChatComponent implements AfterViewChecked {
   isUserMessage(message: Message) {
     return message.userIdSender.toString() === this.authService.getUser()!.id;
   }
-  newConversation() {
+
+  attemptNewConversation() {
     const name = this.newConversationForm.get('name')!.value??'';
     const users = this.selectedUsers.concat([this.authService.getUser()!]);
     this.chatService.createConversation(name, users);
@@ -141,7 +143,7 @@ export class ChatComponent implements AfterViewChecked {
   }
 
   getLastMessage(conversation: Conversation) : Message | null{
-    return conversation.messages[conversation.messages.length-1];
+    return conversation.messages[0];
   }
 
   changeConversation(conversation: Conversation) {
