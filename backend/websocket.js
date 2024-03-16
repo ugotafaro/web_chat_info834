@@ -13,7 +13,7 @@ class ChatWS extends  WS.WebSocketServer {
     }
 
     onListening() {
-        console.log(`[INFO] WebSocketServer up on ws://localhost:${this.options.port}`);
+        console.log(`[INFO] WS up on ws://localhost:${this.options.port}`);
     }
 
     onConnection(ws) {
