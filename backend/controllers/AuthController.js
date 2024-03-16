@@ -88,6 +88,13 @@ const login = async (req, res) => {
         return handleLoginErrors(res, 401, 'Invalid credentials', numberFails + 1, FAIL_SPAN, MAX_LOGIN_ATTEMPTS);
     };
 
+    // Check if user already logged in in Redis
+    const userInRedis = await client.exists(`user:${user._id}`);
+    if (userInRedis) {
+        client.lPush(`login-attempts:${username}`, JSON.stringify({...jsonIfError, message: 'Already logged in'}));
+        return handleLoginErrors(res, 409, 'User already logged in', numberFails + 1, FAIL_SPAN, MAX_LOGIN_ATTEMPTS);
+    }
+
     // Check password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {

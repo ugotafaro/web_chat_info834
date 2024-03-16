@@ -48,6 +48,9 @@ export class LoginComponent {
           case 429:
             this.customErrorMessage = `Ce compte est bloqué. Veuillez attendre au moins ${failSpanMinutes} minutes avant de réessayer.`;
             break;
+          case 409:
+            this.customErrorMessage = `Cet utilisateur est déjà connecté (${remainingAttempts} essais restants).`;
+            break;
           default:
             this.customErrorMessage = "Erreur inconnue";
         }
