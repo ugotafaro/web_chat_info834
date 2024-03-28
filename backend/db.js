@@ -5,23 +5,26 @@ const User = require('./models/UserModel');
 const { exec } = require('child_process');
 const bcrypt = require('bcrypt');
 
-mongo_choice = 'remote';
+mongo_choice = 'local';
+repopulate = true;
 if (mongo_choice === 'local') {
-    // Lancement des replicats sets MongoDB
-    exec('start-mongodb.sh', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing script: ${error}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`Script error: ${stderr}`);
-            return;
-        }
-        console.log(`Script output: ${stdout}`);
-    });
-
     // Connexion locale à MongoDB
-    mongoose.connect('mongodb://localhost:27018,localhost:27019,localhost:27020/hugougolois?replicaSet=rs0').catch(err => console.error('[INFO] Echec de connexion à MongoDB'));
+    mongoose.connect('mongodb://localhost:27018,localhost:27019,localhost:27020/hugougolois?replicaSet=rs0&readPreference=primary').catch(err => {
+        console.error('[INFO] Echec de connexion à MongoDB (local)');
+
+        // Lancement des replicats sets MongoDB
+        console.error('[INFO] Lancement des réplicats sets');
+        exec('start-mongodb.sh', (error, stdout, stderr) => {
+            if (error || stderr) {
+                console.error(`[INFO] Echec de lancements des réplicats sets ${error} ${stderr}`);
+                return;
+            } else {
+                console.log(`[INFO] Lancement des réplicats sets terminé`);
+                // Re-connexion locale à MongoDB
+                mongoose.connect('mongodb://localhost:27018,localhost:27019,localhost:27020/hugougolois?replicaSet=rs0&readPreference=primary');
+            }
+        });
+    });
 } else if (mongo_choice === 'remote') {
     // Connexion remote à MongoDB
     mongoose.connect('mongodb://scadereau:haa00@193.48.125.44:27017/hugougolois?authMechanism=DEFAULT&authSource=admin').catch(err => { console.error('[INFO] Echec de connexion à MongoDB (Vérifiez VPN)') });
@@ -30,6 +33,7 @@ if (mongo_choice === 'local') {
 const db = mongoose.connection;
 
 async function createView() {
+    console.log('[DB] Creating chats view...');
     const pipeline = [
         { $lookup: { from: "messages", localField: "_id", foreignField: "conversation", as: "messages" } },
         { $lookup: { from: "users", localField: "users", foreignField: "_id", as: "users" } },
@@ -37,14 +41,13 @@ async function createView() {
     ];
 
     await db.createCollection("chats", { viewOn: "conversations", pipeline: pipeline });
+
+    console.log('[DB] Chats view created');
 }
 
-if (mongo_choice === 'local') {
-    createView();
-}
-
-// Create function to populate the database
 async function populate() {
+    console.log('[DB] Populating database...');
+
     await User.deleteMany({});
     let ugo = await User.create({ username: 'ugo', password: await bcrypt.hash('feur2024', 10), firstname: 'Ugo', lastname: 'Tafaro' });
     let ugautre = await User.create({ username: 'ugautre', password: await bcrypt.hash('feur2024', 10), firstname: 'Pugo', lastname: 'Lataf' });
@@ -97,8 +100,14 @@ async function populate() {
     await Message.create({content: 'Moi j\'aime juste le café', sender: andres._id, conversation: conv5._id});
     await Message.create({content: 'Et la carné', sender: andres._id, conversation: conv5._id});
     await Message.create({content: 'St-carné✝', sender: lois._id, conversation: conv5._id});
-}
-//populate();
 
-db.once('open', () => { console.log(`[INFO] MongoDB up (${mongo_choice})`) });
+    console.log('[DB] Database populated');
+}
+
+db.once('open', () => {
+    console.log(`[INFO] MongoDB up (${mongo_choice})`)
+    if (mongo_choice === 'local') createView();
+    if (repopulate) populate();
+});
+
 module.exports = db;

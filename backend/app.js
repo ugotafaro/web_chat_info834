@@ -24,5 +24,5 @@ app.use('/api', routes);
 // Launch
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`[INFO] Server up sur http://localhost:${port}`);
+  console.log(`[INFO] Server up (http://localhost:${port})`);
 });
