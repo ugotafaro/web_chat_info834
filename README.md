@@ -23,9 +23,12 @@ En remote ou en local. Voir la variable `mongo_choice` dans `backend/db.js`
 - Si `mongo_choice = 'remote'`, ⚠️SE CONNECTER AU VPN⚠️ pas de réplicats
 - Si `mongo_choice = 'local'`, ⚠️AVOIR INSTALLER MONGO SERVER⚠️ mongo server se lance avec des réplicats (attendre 15 secondes le temps que le script se lance)
 
-Si tout s'est bien passé, vous devriez obtenir en remote :
+Si tout s'est bien passé, en remote, vous devriez obtenir :
+
 ![launch_remote](./launch_remote.png)
-Ou en local
+
+En local, vous devriez obtenir :
+
 ![launch_local](./launch_local.png)
 
 # Stopping
