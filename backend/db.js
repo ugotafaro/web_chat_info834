@@ -5,7 +5,7 @@ const User = require('./models/UserModel');
 const { exec } = require('child_process');
 const bcrypt = require('bcrypt');
 
-mongo_choice = 'local';
+mongo_choice = 'remote';
 repopulate = true;
 if (mongo_choice === 'local') {
     // Connexion locale à MongoDB
@@ -56,13 +56,16 @@ async function populate() {
     let hugo = await User.create({ username: 'hugo', password: await bcrypt.hash('foobar22', 10), firstname: 'Hugo', lastname: 'Beaubrun' });
     let mocheblond = await User.create({ username: 'mocheblond', password: await bcrypt.hash('foobar22', 10), firstname: 'Gohu', lastname: 'Mocheblond' });
     let andres = await User.create({ username: 'andres', password: await bcrypt.hash('jaimeleschatsjaimelabouffejaimelecafe', 10), firstname: 'Andres', lastname: 'Cortes' });
+    let ronan = await User.create({ username: 'ronan', password: await bcrypt.hash('azer123', 10), firstname: 'Ronan', lastname: 'Nanor' });
+    let marc = await User.create({ username: 'marc', password: await bcrypt.hash('azer123', 10), firstname: 'Marc', lastname: 'Dupont-Lavoine' });
+    let jeanne = await User.create({ username: 'jeanne', password: await bcrypt.hash('azer123', 10), firstname: 'Jeanne', lastname: 'D\'arc' });
 
     await Conversation.deleteMany({});
     let conv1 = await Conversation.create({name: 'Les croisés ✝', users: [ugo._id, lois._id, hugo._id]})
     let conv2 = await Conversation.create({name: 'Zugos ⛪', users: [ugo._id, ugautre._id, hugo._id, mocheblond._id]})
     let conv3 = await Conversation.create({name: '100m ricard', users: [lois._id, lautre._id]})
     let conv4 = await Conversation.create({name: 'J\'arrive pas les replicats set ouin ouin 🤓', users: [ugo._id, ugautre._id, lois._id, lautre._id, hugo._id, mocheblond._id]})
-    let conv5 = await Conversation.create({name: '🤠 El groupo 🤠', users: [ugo._id, ugautre._id, lois._id, lautre._id, hugo._id, andres._id]})
+    let conv5 = await Conversation.create({name: '🤠 El groupo 🤠', users: [ugo._id, ugautre._id, lois._id, lautre._id, hugo._id, andres._id, jeanne._id, marc._id, ronan._id]})
 
     await Message.deleteMany({});
     // Les croisés
@@ -82,8 +85,8 @@ async function populate() {
 
     // El groupo
     await Message.create({content: '@lois ?', sender: ugo._id, conversation: conv5._id});
-    await Message.create({content: 'Café ☕☕☕?', sender: ugo._id, conversation: conv5._id});
-    await Message.create({content: 'Demande au mexicain', sender: lois._id, conversation: conv5._id});
+    await Message.create({content: 'Petit café ☕☕☕?', sender: ugo._id, conversation: conv5._id});
+    await Message.create({content: 'Demande au mexicain pro du café', sender: lois._id, conversation: conv5._id});
     await Message.create({content: '???', sender: andres._id, conversation: conv5._id});
     await Message.create({content: 'Tapas', sender: ugo._id, conversation: conv5._id});
     await Message.create({content: 'Tapaas', sender: ugo._id, conversation: conv5._id});
@@ -92,7 +95,7 @@ async function populate() {
     await Message.create({content: 'burrito', sender: hugo._id, conversation: conv5._id});
     await Message.create({content: 'Andres donne des plats', sender: hugo._id, conversation: conv5._id});
     await Message.create({content: 'japalenos', sender: hugo._id, conversation: conv5._id});
-    await Message.create({content: 'c\'est pas un plat duc**', sender: lois._id, conversation: conv5._id});
+    await Message.create({content: 'c\'est pas un plat ça...', sender: lois._id, conversation: conv5._id});
     await Message.create({content: 'héroïne', sender: ugo._id, conversation: conv5._id});
     await Message.create({content: '😂😂😂', sender: lois._id, conversation: conv5._id});
     await Message.create({content: '😂', sender: hugo._id, conversation: conv5._id});
