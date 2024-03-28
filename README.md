@@ -13,15 +13,20 @@ Avant de passez à la partie launch, pensez à télécharger les dépendances :
 
 # Launching
 Pour lancer l'appli, utiliser trois terminals bash :
-- Pour le serveur Redis -> `redis-server --port 6379`
-- Pour le backend -> `cd backend; node app.js;` ou `cd backend; npm run dev;` pour le dev
 - Pour le frontend -> `cd frontend; ng serve;` (ou `npm run ng serve`)
+- Pour le serveur Redis -> `redis-server --port 6379`
+- Pour le backend -> `cd backend; node app.js;` (ou `cd backend; npm run dev;` pour le dev)
 - Se rendre sur `http://localhost:4200`
 
 ## Deux possibilités pour MongoDB
 En remote ou en local. Voir la variable `mongo_choice` dans `backend/db.js`
 - Si `mongo_choice = 'remote'`, ⚠️SE CONNECTER AU VPN⚠️ pas de réplicats
-- Si `mongo_choice = 'local'`, ⚠️AVOIR INSTALLER MONGO SERVER⚠️ mongo se lance tout seul avec des réplicats (attendre 15 secondes le temps que le script se lance)
+- Si `mongo_choice = 'local'`, ⚠️AVOIR INSTALLER MONGO SERVER⚠️ mongo server se lance avec des réplicats (attendre 15 secondes le temps que le script se lance)
+
+Si tout s'est bien passé, vous devriez obtenir en remote :
+![launch_remote](./launch_remote.png)
+Ou en local
+![launch_local](./launch_local.png)
 
 # Stopping
 - Arrêter le serveur redis -> `redis-cli shutdown`
